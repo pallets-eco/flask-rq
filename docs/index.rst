@@ -47,17 +47,17 @@ To quickly start processing jobs, create an instance of the RQ extension::
         long_process(word)
         return 'Task queued: ' + word
 
-To send a job to a particular queue, use the `name` argument:
+To send a job to a particular queue, use the `name` argument::
 
     @rq.task('low')
-    long_process(echo):
+    def long_process(echo):
         time.sleep(5)
         return echo
 
-To send a job to a particular connection, use the `connection` argument:
+To send a job to a particular connection, use the `connection` argument::
 
     @rq.task('low', connection='default')
-    long_process(echo):
+    def long_process(echo):
         time.sleep(5)
         return echo
 
@@ -82,7 +82,6 @@ values into the configuration and how to send jobs to it::
     
     from flask import Flask
     from flask_rq import RQ
-    from somwehere import long_process
 
     app = Flask(__name__)
     
@@ -94,7 +93,7 @@ values into the configuration and how to send jobs to it::
     rq = RQ(app)
 
     @rq.task(connection='other')
-    long_process(echo):
+    def long_process(echo):
         time.sleep(5)
         return echo
 
