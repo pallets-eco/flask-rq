@@ -28,27 +28,38 @@ Getting Started
 
 To quickly start processing jobs, create an instance of the RQ extension::
 
+    import time
     from flask import Flask
     from flask_rq import RQ
-    from somwehere import long_process
 
     app = Flask(__name__)
 
     rq = RQ(app)
 
+    @rq.task
+    def long_process(echo):
+        time.sleep(5)
+        return echo
+
     @app.route('/')
     @app.route('/<word>')
     def echo(word=None):
-        rq.enqueue(long_process, word)
-        return 'Index'
+        long_process(word)
+        return 'Task queued: ' + word
 
 To send a job to a particular queue, use the `name` argument:
 
-    @app.route('/')
-    @app.route('/<word>')
-    def echo(word=None):
-        rq.enqueue(long_process, word, name='high')
-        return 'Index'
+    @rq.task('low')
+    long_process(echo):
+        time.sleep(5)
+        return echo
+
+To send a job to a particular connection, use the `connection` argument:
+
+    @rq.task('low', connection='default')
+    long_process(echo):
+        time.sleep(5)
+        return echo
 
 
 .. _configuration:
@@ -82,11 +93,16 @@ values into the configuration and how to send jobs to it::
 
     rq = RQ(app)
 
+    @rq.task(connection='other')
+    long_process(echo):
+        time.sleep(5)
+        return echo
+
     @app.route('/')
     @app.route('/<word>')
     def echo(word=None):
-        rq.enqueue(long_process, word, connection='other')
-        return 'Index'
+        long_process(word)
+        return 'Task queued: ' + word
 
 Notice the keywork arguement named `connection` in the previous code.
 This specifies that the job be sent to the connection specified in the
@@ -101,4 +117,4 @@ can use the lower level api::
         with rq.get_connection('other'):
             q = rq.get_queue('high')
             q.enqueue(log_process, word)
-        return 'Index'
+        return 'Task queued: ' + word
