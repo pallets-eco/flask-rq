@@ -57,3 +57,16 @@ class RQ(object):
         with self.get_connection(kwargs.pop('connection', None)):
             q = self.get_queue(kwargs.pop('name', None))
             return q.enqueue(*args, **kwargs)
+
+    def task(self, func_or_queue=None, connection=None):
+        def wrapper(fn):
+            def decorator(*args, **kwargs):
+                with self.get_connection(connection):
+                    q = self.get_queue(func_or_queue)
+                    return q.enqueue(fn, *args, **kwargs)
+            return decorator
+
+        if callable(func_or_queue):
+            return wrapper(func_or_queue)
+
+        return wrapper

@@ -18,6 +18,21 @@ def takes_a_while(echo):
     time.sleep(1)
     return echo
 
+@rq.task
+def do_something(echo):
+    time.sleep(1)
+    return echo
+
+@rq.task('low')
+def do_something_low(echo):
+    time.sleep(1)
+    return echo
+
+@rq.task('low', connection='other')
+def do_something_low_on_connection(echo):
+    time.sleep(1)
+    return echo
+
 @app.route('/')
 def home():
     return "Home"
@@ -38,4 +53,19 @@ def doit3():
     with rq.get_connection():
         q = rq.get_queue('low')
         q.enqueue(takes_a_while, 'do it 3')
+    return 'Success'
+
+@app.route('/doit4')
+def doit4():
+    do_something('decorated')
+    return 'Success'
+
+@app.route('/doit5')
+def doit5():
+    do_something_low('doit5')
+    return 'Success'
+
+@app.route('/doit6')
+def doit6():
+    do_something_low_on_connection('doit6')
     return 'Success'
