@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    flask_rq
+    ~~~~~~~~
+
+    RQ (Redis Queue) integration for Flask applications.
+
+    :copyright: (c) 2012 by Matt Wright.
+    :license: MIT, see LICENSE for more details.
+
+"""
 
 from flask import current_app
 from redis import Redis
@@ -30,8 +41,6 @@ class RQ(object):
         app.extensions['rq'] = self
 
     def get_app(self, reference_app=None):
-        """Helper method that implements the logic to look up an application.
-        """
         if reference_app is not None:
             return reference_app
         if self.app is not None:
