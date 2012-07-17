@@ -1,0 +1,104 @@
+Flask-RQ
+============
+
+.. module:: flask_rq
+
+Flask-RQ provides integration with RQ (Redis Queue) for Flask applications.
+
+
+Contents
+========
+* :ref:`installation`
+* :ref:`getting-started`
+* :ref:`configuration`
+
+
+.. _installation:
+
+Installation
+============
+
+    $ pip install flask-rq
+
+
+.. _getting-started:
+
+Getting Started
+===============
+
+To quickly start processing jobs, create an instance of the RQ extension::
+
+    from flask import Flask
+    from flask_rq import RQ
+    from somwehere import long_process
+
+    app = Flask(__name__)
+
+    rq = RQ(app)
+
+    @app.route('/')
+    @app.route('/<word>')
+    def echo(word=None):
+        rq.enqueue(long_process, word)
+        return 'Index'
+
+To send a job to a particular queue, use the `name` argument:
+
+    @app.route('/')
+    @app.route('/<word>')
+    def echo(word=None):
+        rq.enqueue(long_process, word, name='high')
+        return 'Index'
+
+
+.. _configuration:
+
+Configuration
+=============
+
+Be default Flask-RQ will connect to the default, locally running
+Redis server. One can change the connection settings for the default
+server like so::
+
+    app.config['RQ_DEFAULT_HOST'] = 'somewhere.com'
+    app.config['RQ_DEFAULT_PORT'] = 6479
+    app.config['RQ_DEFAULT_PASSWORD'] = 'password'
+    app.config['RQ_DEFAULT_DB'] = 1
+
+One can add additional server connection parameters. For example, the 
+following code illustrates how to add a second set of Redis connection
+values into the configuration and how to send jobs to it::
+    
+    from flask import Flask
+    from flask_rq import RQ
+    from somwehere import long_process
+
+    app = Flask(__name__)
+    
+    app.config['RQ_OTHER_HOST'] = 'myredisserver.com'
+    app.config['RQ_OTHER_PORT'] = 6379
+    app.config['RQ_OTHER_PASSWORD'] = 'secret'
+    app.config['RQ_OTHER_DB'] = 0
+
+    rq = RQ(app)
+
+    @app.route('/')
+    @app.route('/<word>')
+    def echo(word=None):
+        rq.enqueue(long_process, word, connection='other')
+        return 'Index'
+
+Notice the keywork arguement named `connection` in the previous code.
+This specifies that the job be sent to the connection specified in the
+application configuration.
+
+If you're function to be queued has conflicting keyword arguments you
+can use the lower level api::
+
+    @app.route('/')
+    @app.route('/<word>')
+    def echo(word=None):
+        with rq.get_connection('other'):
+            q = rq.get_queue('high')
+            q.enqueue(log_process, word)
+        return 'Index'
