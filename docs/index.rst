@@ -1,9 +1,4 @@
-Flask-RQ
-============
-
-.. module:: flask_rq
-
-Flask-RQ provides integration with RQ (Redis Queue) for Flask applications.
+.. include:: ../README.rst
 
 
 Contents
@@ -117,3 +112,20 @@ can use the lower level api::
             q = rq.get_queue('high')
             q.enqueue(log_process, word)
         return 'Task queued: ' + word
+
+
+Changelog
+=========
+
+.. toctree::
+   :maxdepth: 2
+
+   changelog
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

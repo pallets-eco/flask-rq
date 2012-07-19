@@ -1,7 +1,8 @@
 Flask-RQ
 ========
 
-RQ (Redis Queue) integration for flask applications
+RQ (Redis Queue) integration for Flask applications
+
 
 Resources
 ---------
