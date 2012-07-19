@@ -22,7 +22,7 @@ setup(
     version='0.1',
     url='http://packages.python.org/Flask-RQ/',
     license='MIT',
-    author='Matt Wright',
+    author='Matthew Wright',
     author_email='matt@nobien.net',
     description='RQ (Redis Queue) integration for Flask applications',
     long_description=__doc__,
