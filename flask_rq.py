@@ -12,7 +12,7 @@
 
 from flask import current_app
 from redis import Redis
-from rq import Queue, Connection
+from rq import Queue
 
 
 default_config = {
@@ -29,10 +29,10 @@ def config_value(name, key):
 
 
 def get_connection(name='default'):
-    return Connection(Redis(host=config_value(name, 'HOST'),
+    return Redis(host=config_value(name, 'HOST'),
                             port=config_value(name, 'PORT'),
                             password=config_value(name, 'PASSWORD'),
-                            db=config_value(name, 'DB')))
+                            db=config_value(name, 'DB'))
 
 
 def get_queue(name='default', **kwargs):
