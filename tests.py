@@ -2,7 +2,7 @@
 import unittest
 
 from flask import Flask, current_app
-from flask.ext.rq import RQ, config_value, get_connection, get_queue
+from flask.ext.rq import RQ, config_value, get_connection, get_queue, task
 
 
 def create_app():
@@ -26,6 +26,22 @@ class RQTestCase(unittest.TestCase):
 
     def test_get_queue_default(self):
         self.assertEqual(get_queue().name, 'default')
+
+    def test_task_default(self):
+        @task
+        def job(i):
+            return i + 1
+
+        result = job.delay()
+        self.assertEqual(len(get_queue().jobs), 1)
+
+    def test_task_default_specified_queue(self):
+        @task('low')
+        def job(i):
+            return i + 1
+
+        result = job.delay()
+        self.assertEqual(len(get_queue('low').jobs), 1)
 
     def setUp(self):
         self.app = create_app()

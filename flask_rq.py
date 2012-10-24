@@ -13,6 +13,7 @@
 from flask import current_app
 from redis import Redis
 from rq import Queue
+from rq.decorators import job
 
 
 default_config = {
@@ -40,18 +41,19 @@ def get_queue(name='default', **kwargs):
     return Queue(name, **kwargs)
 
 
-def task(func_or_queue=None, connection=None):
-    def wrapper(fn):
-        def decorator(*args, **kwargs):
-            with get_connection(connection):
-                q = get_queue(func_or_queue)
-                return q.enqueue(fn, *args, **kwargs)
-        return decorator
-
+def task(func_or_queue=None, *args, **kwargs):
     if callable(func_or_queue):
-        return wrapper(func_or_queue)
+        func = func_or_queue
+        queue = get_queue('default')
+    else:
+        func = None
+        queue = get_queue(func_or_queue)
 
-    return wrapper
+    decorator = job(queue, connection=queue.connection, *args, **kwargs)
+
+    if func:
+        return decorator(func)
+    return decorator
 
 
 class RQ(object):
