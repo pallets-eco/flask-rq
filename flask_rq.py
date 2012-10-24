@@ -23,6 +23,50 @@ default_config = {
 }
 
 
+def get_app(reference_app=None):
+    if reference_app is not None:
+        return reference_app
+    return current_app
+
+
+def config_value(name, key):
+    key = 'RQ_%s_%s' % (name.upper(), key)
+    return get_app().config.get(key, None)
+
+
+def get_connection(name=None):
+    name = name or 'default'
+
+    return Connection(Redis(host=config_value(name, 'HOST'),
+                            port=config_value(name, 'PORT'),
+                            password=config_value(name, 'PASSWORD'),
+                            db=config_value(name, 'DB')))
+
+
+def get_queue(name=None, **kwargs):
+    return Queue(name or 'default', **kwargs)
+
+
+def enqueue(*args, **kwargs):
+    with get_connection(kwargs.pop('connection', None)):
+        q = get_queue(kwargs.pop('name', None))
+        return q.enqueue(*args, **kwargs)
+
+
+def task(func_or_queue=None, connection=None):
+    def wrapper(fn):
+        def decorator(*args, **kwargs):
+            with get_connection(connection):
+                q = get_queue(func_or_queue)
+                return q.enqueue(fn, *args, **kwargs)
+        return decorator
+
+    if callable(func_or_queue):
+        return wrapper(func_or_queue)
+
+    return wrapper
+
+
 class RQ(object):
 
     def __init__(self, app=None):
@@ -39,43 +83,3 @@ class RQ(object):
             app.extensions = {}
 
         app.extensions['rq'] = self
-
-    def get_app(self, reference_app=None):
-        if reference_app is not None:
-            return reference_app
-        if self.app is not None:
-            return self.app
-        return current_app
-
-    def config_value(self, name, key):
-        key = 'RQ_%s_%s' % (name.upper(), key)
-        return self.get_app().config.get(key, None)
-
-    def get_connection(self, name=None):
-        name = name or 'default'
-
-        return Connection(Redis(host=self.config_value(name, 'HOST'),
-                                port=self.config_value(name, 'PORT'),
-                                password=self.config_value(name, 'PASSWORD'),
-                                db=self.config_value(name, 'DB')))
-
-    def get_queue(self, name=None, **kwargs):
-        return Queue(name or 'default', **kwargs)
-
-    def enqueue(self, *args, **kwargs):
-        with self.get_connection(kwargs.pop('connection', None)):
-            q = self.get_queue(kwargs.pop('name', None))
-            return q.enqueue(*args, **kwargs)
-
-    def task(self, func_or_queue=None, connection=None):
-        def wrapper(fn):
-            def decorator(*args, **kwargs):
-                with self.get_connection(connection):
-                    q = self.get_queue(func_or_queue)
-                    return q.enqueue(fn, *args, **kwargs)
-            return decorator
-
-        if callable(func_or_queue):
-            return wrapper(func_or_queue)
-
-        return wrapper
