@@ -5,18 +5,29 @@ from flask import Flask, current_app
 from flask.ext.rq import RQ, config_value, get_connection, get_queue, task
 
 
+class config:
+    RQ_LOW_DB = 1
+
+
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(config)
     RQ(app)
     return app
 
 
 class RQTestCase(unittest.TestCase):
-    def test_config_value_db(self):
+    def test_config_default_value_db(self):
         self.assertEqual(config_value('default', 'DB'), 0)
 
-    def test_config_value_port(self):
+    def test_config_default_value_port(self):
         self.assertEqual(config_value('default', 'PORT'), 6379)
+
+    def test_config_low_value_from_default(self):
+        self.assertEqual(config_value('low', 'HOST'), 'localhost')
+
+    def test_config_low_specific_value(self):
+        self.assertEqual(config_value('low', 'DB'), 1)
 
     def test_get_connection_default(self):
         connection = get_connection()

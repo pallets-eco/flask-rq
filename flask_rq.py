@@ -25,8 +25,10 @@ default_config = {
 
 
 def config_value(name, key):
-    key = 'RQ_%s_%s' % (name.upper(), key)
-    return current_app.config.get(key, None)
+    config_key = 'RQ_%s_%s' % (name.upper(), key)
+    if not config_key in current_app.config:
+        config_key = 'RQ_DEFAULT_%s' % key
+    return current_app.config.get(config_key)
 
 
 def get_connection(name='default'):
