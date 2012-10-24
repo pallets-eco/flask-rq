@@ -23,15 +23,9 @@ default_config = {
 }
 
 
-def get_app(reference_app=None):
-    if reference_app is not None:
-        return reference_app
-    return current_app
-
-
 def config_value(name, key):
     key = 'RQ_%s_%s' % (name.upper(), key)
-    return get_app().config.get(key, None)
+    return current_app.config.get(key, None)
 
 
 def get_connection(name=None):
