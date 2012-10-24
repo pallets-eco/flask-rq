@@ -28,17 +28,15 @@ def config_value(name, key):
     return current_app.config.get(key, None)
 
 
-def get_connection(name=None):
-    name = name or 'default'
-
+def get_connection(name='default'):
     return Connection(Redis(host=config_value(name, 'HOST'),
                             port=config_value(name, 'PORT'),
                             password=config_value(name, 'PASSWORD'),
                             db=config_value(name, 'DB')))
 
 
-def get_queue(name=None, **kwargs):
-    return Queue(name or 'default', **kwargs)
+def get_queue(name='default', **kwargs):
+    return Queue(name, **kwargs)
 
 
 def enqueue(*args, **kwargs):
