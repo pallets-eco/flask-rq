@@ -2,7 +2,7 @@
 import unittest
 
 from flask import Flask, current_app
-from flask.ext.rq import RQ, config_value, get_connection
+from flask.ext.rq import RQ, config_value, get_connection, get_queue
 
 
 def create_app():
@@ -23,6 +23,9 @@ class RQTestCase(unittest.TestCase):
         connection_kwargs = connection.connection_pool.connection_kwargs
         self.assertEqual(connection_kwargs.get('host'), 'localhost')
         self.assertEqual(connection_kwargs.get('port'), 6379)
+
+    def test_get_queue_default(self):
+        self.assertEqual(get_queue().name, 'default')
 
     def setUp(self):
         self.app = create_app()

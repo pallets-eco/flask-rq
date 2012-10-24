@@ -36,6 +36,7 @@ def get_connection(name='default'):
 
 
 def get_queue(name='default', **kwargs):
+    kwargs['connection'] = get_connection(name)
     return Queue(name, **kwargs)
 
 
