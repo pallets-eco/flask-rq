@@ -30,9 +30,9 @@ def config_value(name, key):
 
 def get_connection(name='default'):
     return Redis(host=config_value(name, 'HOST'),
-                            port=config_value(name, 'PORT'),
-                            password=config_value(name, 'PASSWORD'),
-                            db=config_value(name, 'DB'))
+        port=config_value(name, 'PORT'),
+        password=config_value(name, 'PASSWORD'),
+        db=config_value(name, 'DB'))
 
 
 def get_queue(name='default', **kwargs):
