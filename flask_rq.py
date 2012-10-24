@@ -40,12 +40,6 @@ def get_queue(name='default', **kwargs):
     return Queue(name, **kwargs)
 
 
-def enqueue(*args, **kwargs):
-    with get_connection(kwargs.pop('connection', None)):
-        q = get_queue(kwargs.pop('name', None))
-        return q.enqueue(*args, **kwargs)
-
-
 def task(func_or_queue=None, connection=None):
     def wrapper(fn):
         def decorator(*args, **kwargs):
