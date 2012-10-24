@@ -68,18 +68,9 @@ def task(func_or_queue=None, connection=None):
 
 
 class RQ(object):
-
-    def __init__(self, app=None):
-        self.app = app
-
-        if app is not None:
-            self.init_app(app)
+    def __init__(self, app):
+        self.init_app(app)
 
     def init_app(self, app):
         for key, value in default_config.items():
             app.config.setdefault(key, value)
-
-        if not hasattr(app, 'extensions'):
-            app.extensions = {}
-
-        app.extensions['rq'] = self
