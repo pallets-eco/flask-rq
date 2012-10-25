@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from flask import Flask, current_app
+from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
     get_server_url, get_worker, task
 
@@ -9,6 +9,7 @@ from flask_rq import RQ, config_value, get_connection, get_queue, \
 class config:
     RQ_LOW_DB = 1
     RQ_HIGH_URL = 'redis://localhost:6379/3'
+
 
 def create_app():
     app = Flask(__name__)
@@ -51,7 +52,7 @@ class RQTestCase(unittest.TestCase):
         def job(i):
             return i + 1
 
-        result = job.delay()
+        job.delay()
         self.assertEqual(len(get_queue().jobs), 1)
         get_worker().work(True)
 
@@ -74,7 +75,7 @@ class RQTestCase(unittest.TestCase):
         def job(i):
             return i + 1
 
-        result = job.delay()
+        job.delay()
         self.assertEqual(len(get_queue('low').jobs), 1)
         get_worker(['low']).work(True)
 
