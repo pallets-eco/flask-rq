@@ -12,6 +12,7 @@
 import redis
 
 from flask import current_app
+from redis._compat import urlparse
 from rq import Queue, Worker
 from rq.decorators import job
 
@@ -46,6 +47,26 @@ def get_connection(queue='default'):
 def get_queue(name='default', **kwargs):
     kwargs['connection'] = get_connection(name)
     return Queue(name, **kwargs)
+
+
+def get_server_url(name):
+    url = config_value(name, 'URL')
+    if url:
+        url_kwargs = urlparse(url)
+        return '%s://%s' % (url_kwargs.scheme, url_kwargs.netloc)
+    else:
+        host = config_value(name, 'HOST')
+        password = config_value(name, 'HOST')
+        netloc = host if not password else ':%s@%s' % (password, host)
+        return 'redis://%s' % netloc
+
+
+def get_worker(queues=['default']):
+    servers = [get_server_url(name) for name in queues]
+    if not servers.count(servers[0]) == len(servers):
+        raise Exception('A worker only accept one connection')
+    return Worker([get_queue(name) for name in queues],
+        connection=get_connection(queues[0]))
 
 
 def task(func_or_queue=None, *args, **kwargs):
