@@ -2,12 +2,12 @@
 import unittest
 
 from flask import Flask, current_app
-from flask.ext.rq import RQ, config_value, get_connection, get_queue, task
+from flask_rq import RQ, config_value, get_connection, get_queue, task
 
 
 class config:
     RQ_LOW_DB = 1
-
+    RQ_HIGH_URL = 'redis://localhost:6379/3'
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +34,13 @@ class RQTestCase(unittest.TestCase):
         connection_kwargs = connection.connection_pool.connection_kwargs
         self.assertEqual(connection_kwargs.get('host'), 'localhost')
         self.assertEqual(connection_kwargs.get('port'), 6379)
+
+    def test_connection_from_url(self):
+        connection = get_connection('high')
+        connection_kwargs = connection.connection_pool.connection_kwargs
+        self.assertEqual(connection_kwargs.get('host'), 'localhost')
+        self.assertEqual(connection_kwargs.get('port'), 6379)
+        self.assertEqual(connection_kwargs.get('db'), 3)
 
     def test_get_queue_default(self):
         self.assertEqual(get_queue().name, 'default')
