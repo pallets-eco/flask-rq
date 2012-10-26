@@ -12,3 +12,6 @@ Resources
 - `Code <http://github.com/mattupstate/flask-rq/>`_
 - `Development Version
   <http://github.com/mattupstate/flask-rq/zipball/develop#egg=Flask-RQ-dev>`_
+
+
+.. image:: https://secure.travis-ci.org/Birdback/flask-rq.png
