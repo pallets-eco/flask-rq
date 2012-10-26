@@ -67,7 +67,7 @@ class RQTestCase(unittest.TestCase):
         self.assertEqual(worker.queues[0].name, 'default')
 
     def test_get_worker_low(self):
-        worker = get_worker(['low'])
+        worker = get_worker('low')
         self.assertEqual(worker.queues[0].name, 'low')
 
     def test_task_default_specified_queue(self):
@@ -77,7 +77,7 @@ class RQTestCase(unittest.TestCase):
 
         job.delay()
         self.assertEqual(len(get_queue('low').jobs), 1)
-        get_worker(['low']).work(True)
+        get_worker('low').work(True)
 
     def setUp(self):
         self.app = create_app()

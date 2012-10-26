@@ -61,7 +61,9 @@ def get_server_url(name):
         return 'redis://%s' % netloc
 
 
-def get_worker(queues=['default']):
+def get_worker(*queues):
+    if len(queues) == 0:
+        queues = ['default']
     servers = [get_server_url(name) for name in queues]
     if not servers.count(servers[0]) == len(servers):
         raise Exception('A worker only accept one connection')
