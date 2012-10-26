@@ -101,8 +101,11 @@ Returns a worker for default queue or specific queues for names given as argumen
     from flask.ext.rq import get_worker
 
 
-    get_worker.work(True)  # Creates a worker that handle jobs in ``default`` queue.
-    get_worker.work(['default', 'low'])  # Creates a worker that handle jobs in both ``default`` and ``low`` queues.
+    # Creates a worker that handle jobs in ``default`` queue.
+    get_worker().work(True)
+    # Creates a worker that handle jobs in both ``default`` and ``low`` queues.
+    get_worker(['default', 'low']).work(True)
+    # Note: These queues has to share the same connection
 
 
 .. _configuration:
