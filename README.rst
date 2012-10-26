@@ -86,6 +86,7 @@ Returns default queue or specific queue for name given as argument:
 
     from flask.ext.rq import get_queue
 
+
     job = get_queue().enqueue(stuff)  # Creates a job on ``default`` queue
     job = get_queue('low').enqueue(stuff)  # Creates a job on ``low`` queue
 
@@ -98,6 +99,7 @@ Returns a worker for default queue or specific queues for names given as argumen
 .. code-block:: python
 
     from flask.ext.rq import get_worker
+
 
     get_worker.work(True)  # Creates a worker that handle jobs in ``default`` queue.
     get_worker.work(['default', 'low'])  # Creates a worker that handle jobs in both ``default`` and ``low`` queues.
