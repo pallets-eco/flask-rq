@@ -18,7 +18,8 @@ Resources
 
 
 Contents
-========
+--------
+
 * :ref:`installation`
 * :ref:`getting-started`
 * :ref:`configuration`
@@ -27,7 +28,9 @@ Contents
 .. _installation:
 
 Installation
-============
+------------
+
+.. code-block:: bash
 
     $ pip install flask-rq
 
@@ -35,7 +38,7 @@ Installation
 .. _getting-started:
 
 Getting started
-===============
+---------------
 
 To quicly start using `rq`, simply create an RQ instance:
 
@@ -51,7 +54,7 @@ To quicly start using `rq`, simply create an RQ instance:
 
 
 ``@task`` decorator
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 Provides a way to quickly set a function as an ``rq`` task:
 
@@ -75,7 +78,7 @@ A specific queue name can also be passed as argument:
 
 
 ``get_queue`` function
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Returns default queue or specific queue for name given as argument:
 
@@ -88,7 +91,7 @@ Returns default queue or specific queue for name given as argument:
 
 
 ``get_worker`` function
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a worker for default queue or specific queues for names given as arguments:
 
@@ -103,11 +106,11 @@ Returns a worker for default queue or specific queues for names given as argumen
 .. _configuration:
 
 Configuration
-=============
+-------------
 
 By default Flask-RQ will connect to the default, locally running
 Redis server. One can change the connection settings for the default
-server like so::
+server like so:
 
 .. code-block:: python
 
