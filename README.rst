@@ -17,16 +17,6 @@ Resources
 .. image:: https://secure.travis-ci.org/Birdback/flask-rq.png
 
 
-Contents
---------
-
-* :ref:`installation`
-* :ref:`getting-started`
-* :ref:`configuration`
-
-
-.. _installation:
-
 Installation
 ------------
 
@@ -34,8 +24,6 @@ Installation
 
     $ pip install flask-rq
 
-
-.. _getting-started:
 
 Getting started
 ---------------
@@ -107,8 +95,6 @@ Returns a worker for default queue or specific queues for names given as argumen
     get_worker('default', 'low').work(True)
     # Note: These queues have to share the same connection
 
-
-.. _configuration:
 
 Configuration
 -------------
