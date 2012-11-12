@@ -70,7 +70,7 @@ def get_worker(*queues):
         connection=get_connection(queues[0]))
 
 
-def task(func_or_queue=None):
+def job(func_or_queue=None):
     if callable(func_or_queue):
         func = func_or_queue
         queue = 'default'

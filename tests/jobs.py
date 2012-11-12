@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import time
-from flask_rq import task
+from flask_rq import job
 
 
-@task
+@job
 def simple(i):
     time.sleep(5)
     return i
 
 
-@task('low')
+@job('low')
 def specified(i):
     time.sleep(5)
     return i

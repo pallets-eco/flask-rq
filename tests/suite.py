@@ -3,7 +3,7 @@ import unittest
 
 from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
-    get_server_url, get_worker, task
+    get_server_url, get_worker
 from jobs import simple, specified
 
 
@@ -48,12 +48,12 @@ class RQTestCase(unittest.TestCase):
     def test_get_queue_default(self):
         self.assertEqual(get_queue().name, 'default')
 
-    def test_task_default(self):
+    def test_job_default(self):
         simple.delay(0)
         self.assertEqual(len(get_queue().jobs), 1)
         get_worker().work(True)
 
-    def test_task_specified_queue(self):
+    def test_job_specified_queue(self):
         specified.delay(3)
         self.assertEqual(len(get_queue('low').jobs), 1)
         get_worker('low').work(True)

@@ -41,17 +41,17 @@ To quicly start using `rq`, simply create an RQ instance:
     RQ(app)
 
 
-``@task`` decorator
+``@job`` decorator
 ~~~~~~~~~~~~~~~~~~~
 
-Provides a way to quickly set a function as an ``rq`` task:
+Provides a way to quickly set a function as an ``rq`` job:
 
 .. code-block:: python
 
-    from flask.ext.rq import task
+    from flask.ext.rq import job
 
 
-    @task
+    @job
     def process(i):
         #  Long stuff to process
 
@@ -63,7 +63,7 @@ A specific queue name can also be passed as argument:
 
 .. code-block:: python
 
-    @task('low')
+    @job('low')
     def process(i):
         #  Long stuff to process
 
