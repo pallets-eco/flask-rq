@@ -14,7 +14,6 @@ import redis
 from flask import current_app
 from redis._compat import urlparse
 from rq import Queue, Worker
-from rq.decorators import job
 
 
 default_config = {
