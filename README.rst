@@ -56,6 +56,9 @@ Provides a way to quickly set a function as an ``rq`` task:
         #  Long stuff to process
 
 
+    process.delay(3)
+
+
 A specific queue name can also be passed as argument:
 
 .. code-block:: python
@@ -63,6 +66,9 @@ A specific queue name can also be passed as argument:
     @task('low')
     def process(i):
         #  Long stuff to process
+
+
+    process.delay(2)
 
 
 ``get_queue`` function

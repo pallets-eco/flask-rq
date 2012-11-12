@@ -4,6 +4,7 @@ import unittest
 from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
     get_server_url, get_worker, task
+from jobs import simple, specified
 
 
 class config:
@@ -48,13 +49,14 @@ class RQTestCase(unittest.TestCase):
         self.assertEqual(get_queue().name, 'default')
 
     def test_task_default(self):
-        @task
-        def job(i):
-            return i + 1
-
-        job.delay()
+        simple.delay(0)
         self.assertEqual(len(get_queue().jobs), 1)
         get_worker().work(True)
+
+    def test_task_specified_queue(self):
+        specified.delay(3)
+        self.assertEqual(len(get_queue('low').jobs), 1)
+        get_worker('low').work(True)
 
     def test_get_server_url_default(self):
         self.assertEqual(get_server_url('high'), 'redis://localhost:6379')
@@ -69,15 +71,6 @@ class RQTestCase(unittest.TestCase):
     def test_get_worker_low(self):
         worker = get_worker('low')
         self.assertEqual(worker.queues[0].name, 'low')
-
-    def test_task_default_specified_queue(self):
-        @task('low')
-        def job(i):
-            return i + 1
-
-        job.delay()
-        self.assertEqual(len(get_queue('low').jobs), 1)
-        get_worker('low').work(True)
 
     def setUp(self):
         self.app = create_app()

@@ -71,19 +71,26 @@ def get_worker(*queues):
         connection=get_connection(queues[0]))
 
 
-def task(func_or_queue=None, *args, **kwargs):
+def task(func_or_queue=None):
     if callable(func_or_queue):
         func = func_or_queue
-        queue = get_queue('default')
+        queue = 'default'
     else:
         func = None
-        queue = get_queue(func_or_queue)
+        queue = func_or_queue
 
-    decorator = job(queue, connection=queue.connection, *args, **kwargs)
+    def wrapper(fn):
+        def delay(*args, **kwargs):
+            q = get_queue(queue)
+            return q.enqueue(fn, *args, **kwargs)
 
-    if func:
-        return decorator(func)
-    return decorator
+        fn.delay = delay
+        return fn
+
+    if func is not None:
+        return wrapper(func)
+
+    return wrapper
 
 
 class RQ(object):
