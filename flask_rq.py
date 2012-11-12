@@ -94,8 +94,9 @@ def task(func_or_queue=None):
 
 
 class RQ(object):
-    def __init__(self, app):
-        self.init_app(app)
+    def __init__(self, app=None):
+        if app is not None:
+            self.init_app(app)
 
     def init_app(self, app):
         for key, value in default_config.items():
