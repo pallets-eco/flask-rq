@@ -7,4 +7,4 @@ install:
 services:
   - redis-server
 
-script: python tests.py
+script: python tests/suite.py
