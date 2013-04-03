@@ -1,10 +1,15 @@
 language: python
+
 python:
+  - "2.6"
   - "2.7"
+
 install:
-  - python setup.py install
+  - pip install . --quiet --use-mirrors
+  - pip install nose --quiet --use-mirrors
 
-services:
-  - redis-server
+script: nosetests
 
-script: python tests/suite.py
+branches:
+  only:
+    - master

@@ -18,17 +18,17 @@ def takes_a_while(echo):
     time.sleep(1)
     return echo
 
-@rq.task
+@rq.job
 def do_something(echo):
     time.sleep(1)
     return echo
 
-@rq.task('low')
+@rq.job('low')
 def do_something_low(echo):
     time.sleep(1)
     return echo
 
-@rq.task('low', connection='other')
+@rq.job('low', connection='other')
 def do_something_low_on_connection(echo):
     time.sleep(1)
     return echo

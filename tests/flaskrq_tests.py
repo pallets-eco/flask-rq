@@ -4,7 +4,7 @@ import unittest
 from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
     get_server_url, get_worker
-from jobs import simple, specified
+from .jobs import simple, specified
 
 
 class config:
