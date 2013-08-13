@@ -54,7 +54,7 @@ class RQTestCase(unittest.TestCase):
         get_worker().work(True)
 
     def test_ctx_job(self):
-        simple.ctx_delay(self.app, 0)
+        simple.ctx_delay(0)
         self.assertEqual(len(get_queue().jobs), 1)
         get_worker().work(True)
 
