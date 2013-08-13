@@ -78,7 +78,7 @@ For example after long task you want to send email with result report:
 .. code-block:: python
 
     @job()
-    def context_process(i):
+    def context_process():
 
         #  Long stuff to process
 
