@@ -69,6 +69,44 @@ A specific queue name can also be passed as argument:
 
     process.delay(2)
 
+Sometimes you need to access application configuration context in your job. 
+There is special way to be able to work inside of context. Please note this is 
+not the same context. This is new, specially created context with the same 
+configuration, but without blueprints or extensions that you probably expect.
+First parameter of `ctx_delay` is always current flask application object (which
+have all runtime configuration). For example after long task you want to send 
+email with result report:
+
+.. code-block:: python
+
+    @job()
+    def context_process(i):
+
+        #  Long stuff to process
+
+        from flask import current_app
+        from flask.ext.mail import Mail, Message
+        mail = Mail()
+        # current_app.config is almost the same as in Flask application
+        # that call your code 
+        mail.init_app(current_app)  
+        msg = Message("Report",
+                  sender="from@example.com",
+                  recipients=["to@example.com"])
+        mail.send(msg)
+
+
+    # inside of your view
+
+    @app.route('/make_long_report')
+    def report(project_id):
+        context_process.ctx_delay(current_app)
+        return 'Check your inbox in few minutes!'
+
+
+If you need to differentiate contexts then name of Flask application inside of 
+worker job is `worker`.
+
 
 ``get_queue`` function
 ~~~~~~~~~~~~~~~~~~~~~~
