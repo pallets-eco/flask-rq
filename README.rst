@@ -73,9 +73,7 @@ Sometimes you need to access application configuration context in your job.
 There is special way to be able to work inside of context. Please note this is 
 not the same context. This is new, specially created context with the same 
 configuration, but without blueprints or extensions that you probably expect.
-First parameter of `ctx_delay` is always current flask application object (which
-have all runtime configuration). For example after long task you want to send 
-email with result report:
+For example after long task you want to send email with result report:
 
 .. code-block:: python
 
@@ -100,7 +98,7 @@ email with result report:
 
     @app.route('/make_long_report')
     def report(project_id):
-        context_process.ctx_delay(current_app)
+        context_process.ctx_delay()
         return 'Check your inbox in few minutes!'
 
 

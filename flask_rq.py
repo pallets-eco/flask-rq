@@ -101,9 +101,9 @@ def job(func_or_queue=None):
             q = get_queue(queue)
             return q.enqueue(fn, *args, **kwargs)
 
-        def ctx_delay(app, *args, **kwargs):
+        def ctx_delay(*args, **kwargs):
             q = get_queue(queue)
-            cfg = Cfg(**dict(app.config))
+            cfg = Cfg(**dict(current_app.config))
             return q.enqueue(ctx_run, fn, cfg, *args, **kwargs)
 
         fn.delay = delay
