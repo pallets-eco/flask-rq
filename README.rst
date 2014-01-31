@@ -32,7 +32,7 @@ To quicly start using `rq`, simply create an RQ instance:
 .. code-block:: python
 
     from flask import Flask
-    form flask.ext.rq import RQ
+    from flask.ext.rq import RQ
 
 
     app = Flask(__name__)
