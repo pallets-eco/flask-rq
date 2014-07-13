@@ -73,7 +73,7 @@ def get_worker(*queues):
         connection=get_connection(queues[0]))
 
 
-def job(func_or_queue=None):
+def job(func_or_queue=None, timeout=None):
     if callable(func_or_queue):
         func = func_or_queue
         queue = 'default'
@@ -84,10 +84,14 @@ def job(func_or_queue=None):
     def wrapper(fn):
         def delay(*args, **kwargs):
             q = get_queue(queue)
-            return q.enqueue(fn, *args, **kwargs)
+            if timeout is None:
+                return q.enqueue(fn, *args, **kwargs)
+            else:
+                return q.enqueue_call(func=fn, args=args, kwargs=kwargs, timeout=timeout)
 
         fn.delay = delay
         return fn
+
 
     if func is not None:
         return wrapper(func)
