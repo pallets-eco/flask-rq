@@ -1,7 +1,8 @@
 Flask-RQ
 ========
 
-.. image:: https://secure.travis-ci.org/mattupstate/flask-principal.png?branch=develop
+.. image:: https://travis-ci.org/mattupstate/flask-rq.svg?branch=master
+    :target: https://travis-ci.org/mattupstate/flask-rq
 
 RQ (Redis Queue) integration for Flask applications
 

@@ -1,11 +1,14 @@
 language: python
 
+services:
+  - redis
+
 python:
   - "2.6"
   - "2.7"
 
 install:
-  - pip install . --quiet --use-mirrors
+  - pip install . --quiet --use-mirrors --no-use-wheel
   - pip install nose --quiet --use-mirrors
 
 script: nosetests
