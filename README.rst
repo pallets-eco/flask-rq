@@ -71,6 +71,19 @@ A specific queue name can also be passed as argument:
     process.delay(2)
 
 
+Additionally, a job timeout (in seconds - the redis default is 180) can also be passed as argument:
+
+.. code-block:: python
+
+    @job('low', timeout=3600) #1 hour
+    def process(i):
+        #  Long stuff to process
+
+
+    process.delay(2)
+
+
+
 ``get_queue`` function
 ~~~~~~~~~~~~~~~~~~~~~~
 

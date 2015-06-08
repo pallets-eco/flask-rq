@@ -28,6 +28,11 @@ def do_something_low(echo):
     time.sleep(1)
     return echo
 
+@rq.job('low', timeout=190)
+def do_something_low_and_slow(echo):
+    time.sleep(185)
+    return echo
+
 @rq.job('low', connection='other')
 def do_something_low_on_connection(echo):
     time.sleep(1)
