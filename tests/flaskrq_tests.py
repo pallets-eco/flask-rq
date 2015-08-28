@@ -3,8 +3,8 @@ import unittest
 
 from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
-    get_server_url, get_worker
-from .jobs import simple, specified
+    get_server_url, get_worker, get_scheduler
+from jobs import simple, specified
 
 
 class config:
@@ -17,7 +17,6 @@ def create_app():
     app.config.from_object(config)
     RQ(app)
     return app
-
 
 class RQTestCase(unittest.TestCase):
     def test_config_default_value_db(self):
@@ -71,6 +70,17 @@ class RQTestCase(unittest.TestCase):
     def test_get_worker_low(self):
         worker = get_worker('low')
         self.assertEqual(worker.queues[0].name, 'low')
+
+    def test_get_scheduler(self):
+        try:
+            from rq_scheduler import Scheduler
+            scheduler = get_scheduler()
+            self.assertIsInstance(scheduler, Scheduler)
+            print "a"
+        except ImportError:
+            with self.assertRaises(ImportError):
+                get_scheduler()
+            print "b"
 
     def setUp(self):
         self.app = create_app()

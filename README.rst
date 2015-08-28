@@ -101,6 +101,21 @@ Returns a worker for default queue or specific queues for names given as argumen
     get_worker('default', 'low').work(True)
     # Note: These queues have to share the same connection
 
+``get_scheduler`` function
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If `RQ-Scheduler <https://github.com/ui/rq-scheduler>` is installed this returns a scheduler bound to Flask-RQ's connection
+
+.. code-block:: python
+
+    from flask.ext.rq import get_scheduler
+
+    get_scheduler(interval=5).schedule(scheduled_time=datetime.utcnow(),
+                                 func=process,
+                                 interval=10,
+                                 repeat=None)
+    get_scheduler().run()
+
 
 Configuration
 -------------

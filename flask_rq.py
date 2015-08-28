@@ -73,6 +73,20 @@ def get_worker(*queues):
         connection=get_connection(queues[0]))
 
 
+try:
+    from rq_scheduler import Scheduler
+
+    def get_scheduler(name='default', interval=60):
+        """
+        Returns an RQ Scheduler instance using parameters defined in
+        ``RQ_QUEUES``
+        """
+        return Scheduler(name, interval=interval,
+                         connection=get_connection(name))
+except ImportError:
+    def get_scheduler(*args, **kwargs):
+        raise ImportError('rq_scheduler not installed')
+
 def job(func_or_queue=None):
     if callable(func_or_queue):
         func = func_or_queue
