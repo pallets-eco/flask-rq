@@ -4,7 +4,7 @@ import unittest
 from flask import Flask
 from flask_rq import RQ, config_value, get_connection, get_queue, \
     get_server_url, get_worker, get_scheduler
-from jobs import simple, specified
+from .jobs import simple, specified
 
 
 class config:
@@ -76,11 +76,9 @@ class RQTestCase(unittest.TestCase):
             from rq_scheduler import Scheduler
             scheduler = get_scheduler()
             self.assertIsInstance(scheduler, Scheduler)
-            print "a"
         except ImportError:
             with self.assertRaises(ImportError):
                 get_scheduler()
-            print "b"
 
     def setUp(self):
         self.app = create_app()
