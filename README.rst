@@ -104,7 +104,7 @@ Returns a worker for default queue or specific queues for names given as argumen
 ``get_scheduler`` function
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-If `RQ-Scheduler <https://github.com/ui/rq-scheduler>` is installed this returns a scheduler bound to Flask-RQ's connection
+If `RQ-Scheduler <https://github.com/ui/rq-scheduler>`_ is installed this returns a scheduler bound to Flask-RQ's connection
 
 .. code-block:: python
 
