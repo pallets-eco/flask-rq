@@ -9,97 +9,89 @@
     :license: MIT, see LICENSE for more details.
 
 """
-
-__version__ = '0.2'
+import collections
 
 import redis
+import rq
 
-from flask import current_app
-from redis._compat import urlparse
-from rq import Queue, Worker
-
-
-default_config = {
-    'RQ_DEFAULT_HOST': 'localhost',
-    'RQ_DEFAULT_PORT': 6379,
-    'RQ_DEFAULT_PASSWORD': None,
-    'RQ_DEFAULT_DB': 0
-}
+__version__ = '1.0'
 
 
-def config_value(name, key):
-    name = name.upper()
-    config_key = 'RQ_%s_%s' % (name, key)
-    if not config_key in current_app.config \
-            and not 'RQ_%s_URL' % name in current_app.config:
-        config_key = 'RQ_DEFAULT_%s' % key
-    return current_app.config.get(config_key, None)
+class FlaskRQ(object):
+    DEFAULT_QUEUE_NAME = 'default'
 
+    _app = None
+    queues = collections.OrderedDict()
 
-def get_connection(queue='default'):
-    url = config_value(queue, 'URL')
-    if url:
-        return redis.from_url(url, db=config_value(queue, 'DB'))
-    return redis.Redis(host=config_value(queue, 'HOST'),
-        port=config_value(queue, 'PORT'),
-        password=config_value(queue, 'PASSWORD'),
-        db=config_value(queue, 'DB'))
+    redis_connection = None
 
-
-def get_queue(name='default', **kwargs):
-    kwargs['connection'] = get_connection(name)
-    return Queue(name, **kwargs)
-
-
-def get_server_url(name):
-    url = config_value(name, 'URL')
-    if url:
-        url_kwargs = urlparse(url)
-        return '%s://%s' % (url_kwargs.scheme, url_kwargs.netloc)
-    else:
-        host = config_value(name, 'HOST')
-        password = config_value(name, 'HOST')
-        netloc = host if not password else ':%s@%s' % (password, host)
-        return 'redis://%s' % netloc
-
-
-def get_worker(*queues):
-    if len(queues) == 0:
-        queues = ['default']
-    servers = [get_server_url(name) for name in queues]
-    if not servers.count(servers[0]) == len(servers):
-        raise Exception('A worker only accept one connection')
-    return Worker([get_queue(name) for name in queues],
-        connection=get_connection(queues[0]))
-
-
-def job(func_or_queue=None):
-    if callable(func_or_queue):
-        func = func_or_queue
-        queue = 'default'
-    else:
-        func = None
-        queue = func_or_queue
-
-    def wrapper(fn):
-        def delay(*args, **kwargs):
-            q = get_queue(queue)
-            return q.enqueue(fn, *args, **kwargs)
-
-        fn.delay = delay
-        return fn
-
-    if func is not None:
-        return wrapper(func)
-
-    return wrapper
-
-
-class RQ(object):
     def __init__(self, app=None):
-        if app is not None:
+        """Creates a new RQ object
+
+        :param app: Flask application instance
+
+        """
+        if app:
             self.init_app(app)
 
     def init_app(self, app):
-        for key, value in default_config.items():
-            app.config.setdefault(key, value)
+        self._app = app
+        if not self.redis_connection:
+            self.set_redis_connection()
+
+    def set_redis_connection(self):
+        self.redis_connection = redis.StrictRedis(
+            host=self._app.config['RQ_DEFAULT_HOST'],
+            port=self._app.config['RQ_DEFAULT_PORT'],
+            db=self._app.config['RQ_DEFAULT_DB'])
+
+    def create_queue(self, name=None, **kwargs):
+        """Creates a new Queue. Use this instead of rq's `Queue` class.
+        This function accepts the same arguments as rq's `Queue` constructor.
+
+        :param name: Queue name. This is used to store a refernence
+                     to the queue so you can use RQ.enqueue without
+                     having to use the specific queue object.
+
+        """
+        kwargs['name'] = self.DEFAULT_QUEUE_NAME if name is None else name
+        kwargs['connection'] = self.redis_connection
+        self.queues[kwargs['name']] = rq.Queue(**kwargs)
+        return self.queues[kwargs['name']]
+
+    def enqueue(self, *args, **kwargs):
+        """Enqueues a job. Works very much like RQ's `Queue.enqueue` method
+        except that you don't need the actual Queue object.
+
+        :param queue_name: Name of the queue to enqueue on.
+                           Defaults to "default".
+
+        """
+        queue_name = kwargs.pop('queue_name', self.DEFAULT_QUEUE_NAME)
+        return self.queues[queue_name].enqueue(*args, **kwargs)
+
+    def create_worker(self, queues=None):
+        """Creates a Worker instance which is bound to the Flask app
+
+        :param queues: A list of queues or queue names for the worker
+                       to listen to.
+        :returns: A FlaskRQWorker which processes each job in the application
+                  context.
+
+        """
+        if not queues:
+            queues = self.queues.values()
+
+        return FlaskRQWorker(flask_app=self._app,
+                             queues=queues,
+                             connection=self.redis_connection)
+
+
+class FlaskRQWorker(rq.Worker):
+    def __init__(self, flask_app, *args, **kwargs):
+        self._flask_app = flask_app
+        return super(FlaskRQWorker, self).__init__(*args, **kwargs)
+
+    def perform_job(self, *args, **kwargs):
+        with self._flask_app.app_context():
+            return super(FlaskRQWorker, self).perform_job(*args, **kwargs)

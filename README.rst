@@ -37,68 +37,39 @@ To quickly start using `rq`, simply create an RQ instance:
 
 
     app = Flask(__name__)
+    rq = RQ()
+    rq.init_app(app)
 
-    RQ(app)
+    default_queue = rq.create_queue() # Creates queue "default"
 
-
-``@job`` decorator
-~~~~~~~~~~~~~~~~~~~
-
-Provides a way to quickly set a function as an ``rq`` job:
-
-.. code-block:: python
-
-    from flask.ext.rq import job
+    # Us RQ's `enqueue` method
+    rq.enqueue(some_function, queue_name='default')
+    # Or use the Queue object returned from `create_queue`
 
 
-    @job
-    def process(i):
-        #  Long stuff to process
-
-
-    process.delay(3)
-
-
-A specific queue name can also be passed as argument:
-
-.. code-block:: python
-
-    @job('low')
-    def process(i):
-        #  Long stuff to process
-
-
-    process.delay(2)
-
-
-``get_queue`` function
-~~~~~~~~~~~~~~~~~~~~~~
-
-Returns default queue or specific queue for name given as argument:
-
-.. code-block:: python
-
-    from flask.ext.rq import get_queue
-
-
-    job = get_queue().enqueue(stuff)  # Creates a job on ``default`` queue
-    job = get_queue('low').enqueue(stuff)  # Creates a job on ``low`` queue
-
-
-``get_worker`` function
+``create_worker`` function
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a worker for default queue or specific queues for names given as arguments:
 
 .. code-block:: python
 
-    from flask.ext.rq import get_worker
+    from flask.ext.rq import RQ
 
+    app = Flask(__name__)
+    rq = RQ()
+    rq.init_app(app)
 
-    # Creates a worker that handle jobs in ``default`` queue.
-    get_worker().work(True)
-    # Creates a worker that handle jobs in both ``default`` and ``low`` queues.
-    get_worker('default', 'low').work(True)
+    # Using the default queue
+    rq.create_queue()
+    worker = rq.create_worker()
+    worker.work()
+
+    # Using a specific queue
+    rq.create_queue('email')
+    rq.create_queue('default')
+    email_worker = rq.create_worker(queues=['email'])
+    email_worker.work()
     # Note: These queues have to share the same connection
 
 
