@@ -107,8 +107,7 @@ class RQ(object):
 
 
 class FlaskRQWorker(Worker):
-    def __init__(self, flask_app, *args, **kwargs):
-        self._flask_app = flask_app
+    def __init__(self, *args, **kwargs):
         return super(FlaskRQWorker, self).__init__(*args, **kwargs)
 
     def perform_job(self, *args, **kwargs):
