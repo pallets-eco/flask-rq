@@ -18,6 +18,7 @@ from flask import current_app
 from redis._compat import urlparse
 from rq import Queue, Worker
 
+_flask_app = None
 
 default_config = {
     'RQ_DEFAULT_HOST': 'localhost',
@@ -30,10 +31,11 @@ default_config = {
 def config_value(name, key):
     name = name.upper()
     config_key = 'RQ_%s_%s' % (name, key)
-    if not config_key in current_app.config \
-            and not 'RQ_%s_URL' % name in current_app.config:
+    app = _flask_app if _flask_app else current_app
+    if not config_key in app.config \
+            and not 'RQ_%s_URL' % name in app.config:
         config_key = 'RQ_DEFAULT_%s' % key
-    return current_app.config.get(config_key, None)
+    return app.config.get(config_key, None)
 
 
 def get_connection(queue='default'):
@@ -101,9 +103,10 @@ class RQ(object):
             self.init_app(app)
 
     def init_app(self, app):
-        FlaskRQWorker._flask_app = app
+        global _flask_app
         for key, value in default_config.items():
             app.config.setdefault(key, value)
+        _flask_app = app
 
 
 class FlaskRQWorker(Worker):
@@ -111,5 +114,5 @@ class FlaskRQWorker(Worker):
         return super(FlaskRQWorker, self).__init__(*args, **kwargs)
 
     def perform_job(self, *args, **kwargs):
-        with self._flask_app.app_context():
+        with _flask_app.app_context():
             return super(FlaskRQWorker, self).perform_job(*args, **kwargs)
