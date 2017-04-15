@@ -13,3 +13,9 @@ def simple(i):
 def specified(i):
     time.sleep(5)
     return i
+
+@job
+def simple_ctx():
+    from flask import current_app
+    time.sleep(5)
+    return current_app.name

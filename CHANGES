@@ -3,6 +3,14 @@ Flask-RQ Changelog
 
 Here you can see the full list of changes between each Flask-RQ release.
 
+Version 0.3
+-----------
+
+Released August 14 2013
+
+- Added `ctx_delay` method. Allow to work inside of flask context in delayed job
+
+
 Version 0.2
 -----------
 

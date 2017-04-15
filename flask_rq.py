@@ -14,7 +14,7 @@ __version__ = '0.2'
 
 import redis
 
-from flask import current_app
+from flask import current_app, Flask
 from redis._compat import urlparse
 from rq import Queue, Worker
 
@@ -73,6 +73,21 @@ def get_worker(*queues):
         connection=get_connection(queues[0]))
 
 
+class Cfg:
+    # Flask doesn't know how to read config from dictionary
+    # so we need to create "class-like" config
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+
+def ctx_run(fn, cfg, *args, **kwargs):
+    # call wrapper that create Flask context with stored config dict
+    app = Flask('worker')
+    app.config.from_object(cfg)
+    with app.app_context():
+        fn(*args, **kwargs)
+
+
 def job(func_or_queue=None):
     if callable(func_or_queue):
         func = func_or_queue
@@ -86,7 +101,13 @@ def job(func_or_queue=None):
             q = get_queue(queue)
             return q.enqueue(fn, *args, **kwargs)
 
+        def ctx_delay(*args, **kwargs):
+            q = get_queue(queue)
+            cfg = Cfg(**dict(current_app.config))
+            return q.enqueue(ctx_run, fn, cfg, *args, **kwargs)
+
         fn.delay = delay
+        fn.ctx_delay = ctx_delay
         return fn
 
     if func is not None:

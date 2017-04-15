@@ -19,7 +19,7 @@ from setuptools import setup
 
 setup(
     name='Flask-RQ',
-    version='0.2',
+    version='0.3',
     url='http://packages.python.org/Flask-RQ/',
     license='MIT',
     author='Matthew Wright',
