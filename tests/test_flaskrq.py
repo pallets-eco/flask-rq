@@ -27,7 +27,7 @@ class RQTestCase(unittest.TestCase):
         self.assertEqual(config_value('default', 'PORT'), 6379)
 
     def test_config_low_value_from_default(self):
-        self.assertEqual(config_value('low', 'HOST'), 'redis')
+        self.assertEqual(config_value('low', 'HOST'), 'localhost')
 
     def test_config_low_specific_value(self):
         self.assertEqual(config_value('low', 'DB'), 1)
@@ -35,13 +35,13 @@ class RQTestCase(unittest.TestCase):
     def test_get_connection_default(self):
         connection = get_connection()
         connection_kwargs = connection.connection_pool.connection_kwargs
-        self.assertEqual(connection_kwargs.get('host'), 'redis')
+        self.assertEqual(connection_kwargs.get('host'), 'localhost')
         self.assertEqual(connection_kwargs.get('port'), 6379)
 
     def test_connection_from_url(self):
         connection = get_connection('high')
         connection_kwargs = connection.connection_pool.connection_kwargs
-        self.assertEqual(connection_kwargs.get('host'), 'redis')
+        self.assertEqual(connection_kwargs.get('host'), 'localhost')
         self.assertEqual(connection_kwargs.get('port'), 6379)
         self.assertEqual(connection_kwargs.get('db'), 3)
 
@@ -59,10 +59,10 @@ class RQTestCase(unittest.TestCase):
         get_worker('low').work(True)
 
     def test_get_server_url_default(self):
-        self.assertEqual(get_server_url('high'), 'redis://redis:6379')
+        self.assertEqual(get_server_url('high'), 'redis://localhost:6379')
 
     def test_get_server_url_from_dsn(self):
-        self.assertEqual(get_server_url('high'), 'redis://redis:6379')
+        self.assertEqual(get_server_url('high'), 'redis://localhost:6379')
 
     def test_get_worker_default(self):
         worker = get_worker()
