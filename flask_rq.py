@@ -15,7 +15,7 @@ __version__ = '0.2'
 import redis
 
 from flask import current_app
-from urllib import urlparse
+from urllib.parse import urlparse
 from rq import Queue, Worker
 
 
