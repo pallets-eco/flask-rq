@@ -3,7 +3,7 @@ name = "Flask-RQ"
 version = "0.2"
 description="RQ (Redis Queue) integration for Flask applications"
 readme = "README.md"
-license = { LICENSE }
+license = { file = "LICENSE" }
 author = [{ name = "Matthew Wright"}]
 maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
 classifiers = [

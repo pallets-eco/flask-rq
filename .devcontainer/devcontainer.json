@@ -1,6 +1,6 @@
 {
     "name": "pallets/flask",
-    "image": "mcr.microsoft.com/devcontainers/python:3",
+    "image": "mcr.microsoft.com/devcontainers/python:3.8",
     "customizations": {
       "vscode": {
         "settings": {
