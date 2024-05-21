@@ -1,5 +1,5 @@
 {
-    "name": "pallets/flask",
+    "name": "pallets-eco/flask-rq",
     "image": "mcr.microsoft.com/devcontainers/python:3.8",
     "customizations": {
       "vscode": {
