@@ -9,7 +9,7 @@ from .jobs import simple, specified
 
 class config:
     RQ_LOW_DB = 1
-    RQ_HIGH_URL = 'redis://localhost:6379/3'
+    RQ_HIGH_URL = 'redis://redis:6379/3'
 
 
 def create_app():
