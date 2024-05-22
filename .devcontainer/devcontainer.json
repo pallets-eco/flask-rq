@@ -1,6 +1,7 @@
 {
   "name": "pallets-eco/flask-rq",
-  "image": "mcr.microsoft.com/devcontainers/python:3.8",
+  "image": "mcr.microsoft.com/devcontainers/python:3.9",
+  "remoteUser": "root",
   "customizations": {
     "vscode": {
       "settings": {
