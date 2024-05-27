@@ -18,6 +18,7 @@ from flask import current_app
 from urllib.parse import urlparse
 from rq import Queue, Worker
 
+_flask_app = None
 
 default_config = {
     'RQ_DEFAULT_HOST': 'localhost',
@@ -30,10 +31,11 @@ default_config = {
 def config_value(name, key):
     name = name.upper()
     config_key = 'RQ_%s_%s' % (name, key)
-    if not config_key in current_app.config \
-            and not 'RQ_%s_URL' % name in current_app.config:
+    app = _flask_app if _flask_app else current_app
+    if not config_key in app.config \
+            and not 'RQ_%s_URL' % name in app.config:
         config_key = 'RQ_DEFAULT_%s' % key
-    return current_app.config.get(config_key, None)
+    return app.config.get(config_key, None)
 
 
 def get_connection(queue='default'):
@@ -69,7 +71,7 @@ def get_worker(*queues):
     servers = [get_server_url(name) for name in queues]
     if not servers.count(servers[0]) == len(servers):
         raise Exception('A worker only accept one connection')
-    return Worker([get_queue(name) for name in queues],
+    return FlaskRQWorker([get_queue(name) for name in queues],
         connection=get_connection(queues[0]))
 
 
@@ -101,5 +103,16 @@ class RQ(object):
             self.init_app(app)
 
     def init_app(self, app):
+        global _flask_app
         for key, value in default_config.items():
             app.config.setdefault(key, value)
+        _flask_app = app
+
+
+class FlaskRQWorker(Worker):
+    def __init__(self, *args, **kwargs):
+        return super(FlaskRQWorker, self).__init__(*args, **kwargs)
+
+    def perform_job(self, *args, **kwargs):
+        with _flask_app.app_context():
+            return super(FlaskRQWorker, self).perform_job(*args, **kwargs)
