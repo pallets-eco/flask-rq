@@ -32,16 +32,12 @@ platformdirs==4.2.2
     #   virtualenv
 pluggy==1.5.0
     # via tox
-pre-commit==3.5.0
+pre-commit==3.7.1
     # via -r dev.in
 pyproject-api==1.6.1
     # via tox
 pyyaml==6.0.1
     # via pre-commit
-tomli==2.0.1
-    # via
-    #   pyproject-api
-    #   tox
 tox==4.15.0
     # via -r dev.in
 virtualenv==20.26.2
