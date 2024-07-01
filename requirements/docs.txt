@@ -4,7 +4,7 @@
 #
 #    pip-compile docs.in
 #
-alabaster==0.7.13
+alabaster==0.7.16
     # via sphinx
 babel==2.15.0
     # via sphinx
@@ -20,8 +20,6 @@ idna==3.7
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==7.1.0
-    # via sphinx
 jinja2==3.1.4
     # via sphinx
 markupsafe==2.1.5
@@ -36,13 +34,11 @@ pygments==2.18.0
     # via
     #   sphinx
     #   sphinx-tabs
-pytz==2024.1
-    # via babel
 requests==2.32.2
     # via sphinx
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.1.2
+sphinx==7.3.7
     # via
     #   -r docs.in
     #   pallets-sphinx-themes
@@ -62,9 +58,7 @@ sphinxcontrib-log-cabinet==1.0.1
     # via -r docs.in
 sphinxcontrib-qthelp==1.0.3
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
 urllib3==2.2.1
     # via requests
-zipp==3.18.2
-    # via importlib-metadata
