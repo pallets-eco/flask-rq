@@ -1,40 +1,61 @@
 [project]
 name = "Flask-RQ"
-version = "0.2"
-description="RQ (Redis Queue) integration for Flask applications"
+version = "0.3.0.dev"
+description = "RQ (Redis Queue) integration for Flask applications"
 readme = "README.md"
-license = { file = "LICENSE" }
-author = [{ name = "Matthew Wright"}]
-maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Framework :: Flask",
-    "Environment :: Web Environment",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-]
-requires-python = ">=3.8"
+maintainers = [{ name = "Pallets Ecosystem", email = "contact@palletsprojects.com" }]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.9"
 dependencies = [
-    "flask>=2.3.0",
-    "rq>=1.16.2",
+    "flask>=3.0",
+    "rq>=2.0",
 ]
 
 [project.urls]
-Documentation = "https://pythonhosted.org/Flask-RQ/"
-Changes = "https://github.com/pallets-eco/flask-rq/releases"
-Source = "https://github.com/pallets-eco/flask-rq"
+Documentation = "https://flask-rq.readthedocs.io"
+Changes = "https://flask-rq.readthedocs.io/en/latest/changes/"
+Source = "https://github.com/pallets-eco/flask-rq/"
 Chat = "https://discord.gg/pallets"
 
 [build-system]
-requires = ["flit_core<4"]
-build-backend = "flit_core.buildapi"
+requires = ["pdm-backend>=2.4"]
+build-backend = "pdm.backend"
 
-[tool.flit.module]
-name = "flask_rq"
+[dependency-groups]
+dev = [
+    "mypy",
+    "pre-commit",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "tox",
+    "tox-uv",
+]
+docs = [
+    "furo",
+    "myst-parser",
+    "sphinx",
+]
+docs-auto = [
+    "sphinx-autobuild",
+]
+gha-update = [
+    "gha-update ; python_version>='3.12'",
+]
+pre-commit = [
+    "pre-commit",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+typing = [
+    "mypy",
+    "pyright",
+    "pytest",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -47,4 +68,107 @@ branch = true
 source = ["flask_rq", "tests"]
 
 [tool.coverage.paths]
-source = ["flask_rq.py"]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if t.TYPE_CHECKING",
+    "raise NotImplementedError",
+    ": \\.{3}",
+]
+
+[tool.mypy]
+python_version = "3.9"
+files = ["src", "tests"]
+show_error_codes = true
+pretty = true
+strict = true
+
+[tool.pyright]
+pythonVersion = "3.9"
+include = ["src", "tests"]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+src = ["src"]
+fix = true
+show-fixes = true
+output-format = "full"
+
+[tool.ruff.lint]
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle error
+    "F",  # pyflakes
+    "I",  # isort
+    "UP",  # pyupgrade
+    "W",  # pycodestyle warning
+]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+order-by-type = false
+
+[tool.gha-update]
+tag-only = [
+    "slsa-framework/slsa-github-generator",
+]
+
+[tool.tox]
+env_list = [
+    "py3.13", "py3.12", "py3.11", "py3.10", "py3.9",
+    "style",
+    "typing",
+    "docs",
+]
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+package = "wheel"
+wheel_build_env = ".pkg"
+constrain_package_deps = true
+use_frozen_constraints = true
+dependency_groups = ["tests"]
+commands = [[
+    "pytest", "-v", "--tb=short", "--basetemp={env_tmp_dir}",
+    "--cov", "--cov-report=term-missing",
+    { replace = "posargs", default = [], extend = true },
+]]
+
+[tool.tox.env.style]
+dependency_groups = ["pre-commmit"]
+skip_install = true
+commands = [["pre-commit", "run", "--all-files"]]
+
+[tool.tox.env.typing]
+dependency_groups = ["typing"]
+commands = [
+    ["mypy"],
+    ["pyright"],
+    ["pyright", "--verifytypes", "flask_rq", "--ignoreexternal"],
+]
+
+[tool.tox.env.docs]
+dependency_groups = ["docs"]
+commands = [["sphinx-build", "-E", "-W", "-b", "dirhtml", "docs", "docs/_build/dirhtml"]]
+
+[tool.tox.env.docs-auto]
+dependency_groups = ["docs", "docs-auto"]
+commands = [["sphinx-autobuild", "-W", "-b", "dirhtml", "--watch", "src", "docs", "docs/_build/dirhtml"]]
+
+[tool.tox.env.update-actions]
+labels = ["update"]
+dependency_groups = ["gha-update"]
+skip_install = true
+commands = [["gha-update"]]
+
+[tool.tox.env.update-pre_commit]
+labels = ["update"]
+dependency_groups = ["pre-commit"]
+skip_install = true
+commands = [["pre-commit", "autoupdate", "--freeze", "-j4"]]
+
+[tool.tox.env.update-requirements]
+labels = ["update"]
+skip_install = true
+commands = [["uv", "lock", { replace = "posargs", default = ["-U"], extend = true }]]
