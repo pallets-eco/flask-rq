@@ -1,5 +1,3 @@
-__version__ = '0.2'
-
 import redis
 
 from flask import current_app
