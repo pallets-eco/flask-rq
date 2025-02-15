@@ -1,15 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-    flask_rq
-    ~~~~~~~~
-
-    RQ (Redis Queue) integration for Flask applications.
-
-    :copyright: (c) 2012 by Matt Wright.
-    :license: MIT, see LICENSE for more details.
-
-"""
-
 __version__ = '0.2'
 
 import redis
