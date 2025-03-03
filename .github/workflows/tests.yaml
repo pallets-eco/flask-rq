@@ -12,19 +12,22 @@ jobs:
         python: ['3.13', '3.12', '3.11', '3.10', '3.9']
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: astral-sh/setup-uv@4db96194c378173c656ce18a155ffc14a9fc4355 # v5.2.2
+      - uses: astral-sh/setup-uv@f94ec6bedd8674c4426838e6b50417d36b6ab231 # v5.3.1
         with:
           enable-cache: true
           prune-cache: false
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: ${{ matrix.python }}
+      - uses: shogo82148/actions-setup-redis@49ae0a2fa2bd4b483efad9c869eb8d225032334e # v1.38.0
+        with:
+          auto-start: false
       - run: uv run --locked tox run -e ${{ format('py{0}', matrix.python) }}
   typing:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: astral-sh/setup-uv@4db96194c378173c656ce18a155ffc14a9fc4355 # v5.2.2
+      - uses: astral-sh/setup-uv@f94ec6bedd8674c4426838e6b50417d36b6ab231 # v5.3.1
         with:
           enable-cache: true
           prune-cache: false
@@ -32,7 +35,7 @@ jobs:
         with:
           python-version-file: pyproject.toml
       - name: cache mypy
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ./.mypy_cache
           key: mypy|${{ hashFiles('pyproject.toml') }}

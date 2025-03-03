@@ -2,30 +2,36 @@ from __future__ import annotations
 
 import typing as t
 
-from .extension import RQ
-from .extension import job
-from .extension import get_queue
-from .extension import get_worker
+from ._extension import RQ
 
 __all__ = [
-    "get_queue",
-    "get_worker",
-    "job",
     "RQ",
 ]
 
 
 def __getattr__(name: str) -> t.Any:
-    import importlib.metadata
     import warnings
 
     if name == "__version__":
+        from importlib.metadata import version
+
         warnings.warn(
             "'__version__' is deprecated and will be removed in Flask-RQ 1.0."
             " Use 'importlib.metadata.version(\"flask-rq\")' instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return importlib.metadata.version("flask-rq")
+        return version("flask-rq")
 
-    raise AttributeError(name)
+    if name in {"get_queue", "get_worker", "job"}:
+        from . import _old
+
+        warnings.warn(
+            f"'{name}' is deprecated and will be removed in Flask-RQ 1.0. Use"
+            " the corresponding 'RQExtension' method instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return getattr(_old, name)
+
+    raise AttributeError(name)  # pragma: no cover
