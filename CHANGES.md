@@ -1,6 +1,6 @@
 ## Version 0.3.1
 
-Unreleased
+Released 2025-03-04
 
 - Fix error when `RQ_CONNECTION` is a URL string instead of a dict.
 
