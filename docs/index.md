@@ -36,7 +36,6 @@ worker
 server
 testing
 api
-old
 license
 changes
 ```

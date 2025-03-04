@@ -71,20 +71,3 @@ def test_connection_class(app: Flask) -> None:
     RQ(app)
     assert conn_cls.call_count == 2
     assert conn_cls.from_url.call_count == 1
-
-
-def test_new_preferred(app: Flask) -> None:
-    """New config is preferred over old config, shows warning."""
-    app.config["RQ_LOW_DB"] = 4
-
-    with pytest.warns(DeprecationWarning, match="The config format has changed"):
-        rq = RQ(app)
-
-    with app.app_context():
-        assert rq.queues["low"].connection.get_connection_kwargs()["db"] == 1
-
-
-def test_old_unknown(app: Flask) -> None:
-    """Old config handler doesn't warn on unknown keys."""
-    app.config["RQ_UNKNOWN"] = "here"
-    RQ(app)

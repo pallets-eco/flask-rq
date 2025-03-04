@@ -21,7 +21,5 @@ or private and may change at any time.
 
     .. automethod:: enqueue
 
-    .. automethod:: delay
-
     .. automethod:: __call__
 ```

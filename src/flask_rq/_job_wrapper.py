@@ -70,25 +70,3 @@ class JobWrapper(t.Generic[P, R]):
         """
         queue = self.rq.queues[self.queue]
         return queue.enqueue(self.func, *args, **kwargs)  # pyright: ignore
-
-    def delay(self, *args: P.args, **kwargs: P.kwargs) -> Job:
-        """Submit the wrapped function to the queue for background execution.
-
-        :param args: Any positional arguments accepted by the wrapped function.
-        :param kwargs: Any keyword arguments accepted by the wrapped function,
-            along with any keyword arguments that can be passed to
-            :meth:`rq.Queue.enqueue`.
-
-        .. deprecated:: 0.3
-            Renamed to :meth:`enqueue`. Will be removed in Flask-RQ 1.0.
-        """
-        import warnings
-
-        warnings.warn(
-            "The 'delay' method has been renamed to 'enqueue' to match RQ's"
-            " terminology. The old name is deprecated and will be removed in"
-            " Flask-RQ 1.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.enqueue(*args, **kwargs)

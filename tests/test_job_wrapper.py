@@ -68,11 +68,3 @@ def test_job_low(rq: RQ) -> None:
     r = j.latest_result()
     assert r is not None
     assert r.return_value == 32
-
-
-@pytest.mark.usefixtures("app_ctx")
-def test_deprecated_delay(rq: RQ) -> None:
-    job_mul = rq.job(mul)
-
-    with pytest.warns(DeprecationWarning, match="The 'delay' method"):
-        job_mul.delay(4, 5)
