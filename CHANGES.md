@@ -1,6 +1,6 @@
 ## Version 0.3.0
 
-Unreleased
+Released 2025-03-04
 
 - Drop support for Python < 3.9.
 - Require Flask >= 3.0.
