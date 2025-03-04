@@ -42,8 +42,7 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
     if is_async is None:
         is_async = not app.testing
 
-    default_conn = conn_cls(**conn_confs.pop("default", {}))  # type: ignore[arg-type]
-    connections: dict[str, Redis] = {"default": default_conn}
+    connections: dict[str, Redis] = {}
     conn_refs: dict[str, str] = {}
 
     # Collect connections by name first. This allows using forward references to
@@ -62,6 +61,11 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
                 connections[name] = conn_cls.from_url(conn_conf)  # pyright: ignore
         else:
             connections[name] = conn_cls(**conn_conf)
+
+    if "default" in connections:
+        default_conn = connections["default"]
+    else:
+        connections["default"] = default_conn = conn_cls()
 
     job_class = make_job_class(app)
     queues: dict[str, Queue] = {
