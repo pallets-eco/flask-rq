@@ -1,3 +1,7 @@
+## Version 1.0.0
+
+Unreleased
+
 ## Version 0.3.0
 
 Released 2025-03-04
