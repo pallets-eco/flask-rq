@@ -55,7 +55,7 @@ def config(redis_port: int) -> dict[str, t.Any]:
     return {
         "TESTING": True,
         "RQ_CONNECTION": {"port": redis_port},
-        "RQ_QUEUES": ["low", "high", "share_low", "plain"],
+        "RQ_QUEUES": ["default", "low", "high", "share_low", "plain"],
         "RQ_QUEUE_CONNECTIONS": {
             "low": {"port": redis_port, "db": 1},
             "high": f"redis://localhost:{redis_port}/2",

@@ -2,6 +2,13 @@
 
 Unreleased
 
+- Remove previously deprecated code. Use 0.3 as an intermediate upgrade to see
+  deprecation warnings.
+    - The global API (`get_queue`, `get_worker`, `@job`) is removed.
+    - The "flat" config is not used.
+    - The `@job` decorator `delay` function is renamed to `enqueue`.
+    - `__version__` is removed.
+
 ## Version 0.3.1
 
 Released 2025-03-04
