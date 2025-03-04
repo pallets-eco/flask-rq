@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest a new feature for Flask-rq
+about: Suggest a new feature for Flask-RQ
 ---
 
 <!--
@@ -10,6 +10,6 @@ Include details such as links to relevant specs or previous discussions.
 
 <!--
 Replace this comment with an example of the problem which this feature
-would resolve. Is this problem solvable without changes to Flask-rq,
+would resolve. Is this problem solvable without changes to Flask-RQ,
 such as by subclassing or using an extension?
 -->

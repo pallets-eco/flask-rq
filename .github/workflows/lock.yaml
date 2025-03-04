@@ -6,10 +6,11 @@ name: Lock inactive closed issues
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 1 * *'
 permissions:
   issues: write
   pull-requests: write
+  discussions: write
 concurrency:
   group: lock
 jobs:
