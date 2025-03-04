@@ -20,7 +20,7 @@ quart = [
 
 [project.urls]
 Documentation = "https://flask-rq.readthedocs.io"
-Changes = "https://flask-rq.readthedocs.io/en/latest/changes/"
+Changes = "https://flask-rq.readthedocs.io/en/stable/changes/"
 Source = "https://github.com/pallets-eco/flask-rq/"
 Chat = "https://discord.gg/pallets"
 
