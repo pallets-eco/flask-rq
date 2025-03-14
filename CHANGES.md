@@ -1,3 +1,7 @@
+## Version 0.3.2
+
+Unreleased
+
 ## Version 0.3.1
 
 Released 2025-03-04
