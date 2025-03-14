@@ -2,6 +2,8 @@
 
 Unreleased
 
+- Remove non-optional `quart` import.
+
 ## Version 0.3.1
 
 Released 2025-03-04
