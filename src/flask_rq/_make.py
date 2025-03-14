@@ -4,12 +4,12 @@ import typing as t
 from pkgutil import resolve_name
 
 from flask import Flask
-from quart import Quart
 from rq import Queue
 
 from flask_rq._job_class import make_job_class
 
 if t.TYPE_CHECKING:
+    from quart import Quart
     from redis import Redis
 
 

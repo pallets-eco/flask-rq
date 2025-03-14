@@ -9,6 +9,12 @@ Unreleased
     - The `@job` decorator `delay` function is renamed to `enqueue`.
     - `__version__` is removed.
 
+## Version 0.3.2
+
+Released 2025-03-14
+
+- Remove non-optional `quart` import.
+
 ## Version 0.3.1
 
 Released 2025-03-04
