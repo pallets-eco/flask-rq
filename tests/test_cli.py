@@ -8,7 +8,7 @@ import click
 import pytest
 from flask import Flask
 from flask.globals import app_ctx
-from rq.cli import cli as orig_cli
+from rq import cli as orig_cli
 
 from flask_rq import RQ
 from flask_rq._cli import from_rq_cmd
@@ -34,16 +34,16 @@ def test_ctx_obj(app: Flask, rq: RQ) -> None:
 
 
 def test_from_rq_cmd() -> None:
-    @from_rq_cmd(orig_cli.worker, {"queues"})
+    @from_rq_cmd(orig_cli.worker, {"queues"})  # type: ignore[attr-defined]
     def worker(**kwargs: t.Any) -> None:  # pragma: no cover
         pass
 
-    assert worker.__doc__ == orig_cli.worker.__doc__
+    assert worker.__doc__ == orig_cli.worker.__doc__  # type: ignore[attr-defined]
     assert worker.__click_params__[0].name == "queues"  # type: ignore[attr-defined]
 
 
 def test_from_rq_cmd_override_doc() -> None:
-    @from_rq_cmd(orig_cli.worker, {"queues"})
+    @from_rq_cmd(orig_cli.worker, {"queues"})  # type: ignore[attr-defined]
     def worker(**kwargs: t.Any) -> None:  # pragma: no cover
         """override"""
 
