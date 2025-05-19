@@ -51,17 +51,16 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
 
     default_conn = connections["default"]
     job_class = make_job_class(app)
-    queues: dict[str, Queue] = {
-        "default": Queue(
+    queues: dict[str, Queue] = {}
+
+    if "default" not in config.get("queues", []):
+        queues["default"] = Queue(
             "default", default_conn, is_async=is_async, job_class=job_class
         )
-    }
 
     # All defined connections have been created, now create each queue with the
     # connection it references.
     for name in config.get("queues", []):
-        if name == "default":
-            continue
 
         if name in connections:
             conn = connections[name]
