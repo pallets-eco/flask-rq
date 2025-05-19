@@ -2,6 +2,8 @@
 
 Unreleased
 
+- Compatibility with RQ 2.3.3. {issue}`51`
+
 ## Version 0.3.2
 
 Released 2025-03-14
