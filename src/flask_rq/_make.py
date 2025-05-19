@@ -61,7 +61,6 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
     # All defined connections have been created, now create each queue with the
     # connection it references.
     for name in config.get("queues", []):
-
         if name in connections:
             conn = connections[name]
         elif name in conn_refs:
