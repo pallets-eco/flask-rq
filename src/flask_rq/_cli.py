@@ -65,7 +65,7 @@ def rq_group(ctx: click.Context) -> None:
 
 
 @from_rq_cmd(
-    orig_cli.worker,
+    orig_cli.worker,  # type: ignore[attr-defined]
     {
         "burst",
         "name",
