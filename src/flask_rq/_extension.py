@@ -121,16 +121,19 @@ class RQ:
         app = self._get_current_app()
         known_queues = self._queues[app]
         worker_queues: list[Queue] = []
+        worker_connection = known_queues["default"].connection
 
         if queues:
             worker_queues.extend(known_queues[k] for k in queues)
+            if "default" not in queues:
+                worker_connection = known_queues[queues[0]].connection
         else:
             worker_queues.extend(known_queues.values())
 
         return Worker(
             worker_queues,
             job_class=worker_queues[0].job_class,
-            connection=known_queues["default"].connection,
+            connection=worker_connection,
             **kwargs,
         )
 
