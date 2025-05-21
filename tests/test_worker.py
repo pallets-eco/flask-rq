@@ -74,6 +74,7 @@ def test_worker_queues(rq: RQ) -> None:
 
 class ConfigQueueOrderBase:
     config_queue = []
+    expected_config_queue_returned = []
     config_queue_connections = {}
     param_queue_default_provided_first = ["default", "high"]
     param_queue_default_provided = ["high", "default"]
@@ -102,7 +103,7 @@ class ConfigQueueOrderBase:
     @pytest.mark.usefixtures("app_ctx")
     def test_worker_no_param(self, rq: RQ) -> None:
         worker = rq.make_worker()
-        assert worker.queue_names() == self.config_queue
+        assert worker.queue_names() == self.expected_config_queue_returned
         assert worker.connection is rq.queues["default"].connection
 
     @pytest.mark.usefixtures("app_ctx")
@@ -129,11 +130,14 @@ class ConfigQueueOrderBase:
 
 class TestConfigQueueDefaultProvidedFirst(ConfigQueueOrderBase):
     config_queue = ["default", "high", "low"]
+    expected_config_queue_returned = ["default", "high", "low"]
 
 
 class TestConfigQueueDefaultPresentNotFirst(ConfigQueueOrderBase):
     config_queue = ["high", "default", "low"]
+    expected_config_queue_returned = ["high", "default", "low"]
 
 
 class TestConfigQueueDefaultNotPresent(ConfigQueueOrderBase):
     config_queue = ["high", "low"]
+    expected_config_queue_returned = ["default", "high", "low"]
