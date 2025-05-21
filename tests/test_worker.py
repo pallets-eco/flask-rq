@@ -104,8 +104,6 @@ class ConfigQueueOrderBase:
         worker = rq.make_worker()
         assert (
             worker.queue_names() == self.config_queue
-            if self.config_queue != []
-            else ["default"]
         )
         assert worker.connection is rq.queues["default"].connection
 
