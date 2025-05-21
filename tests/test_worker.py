@@ -125,9 +125,7 @@ class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
 
 class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
     testing_config_queue = [ "high","default", "low"]
-    config_queue_connections
 
 
 class TestConfigQueueDefaultNotPresent(TestConfigQueueOrderBase):
     testing_config_queue = [ "high", "low"]
-    config_queue_connections
