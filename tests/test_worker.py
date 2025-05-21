@@ -104,6 +104,7 @@ class TestConfigQueueEmpty:
         assert worker.queue_names() == self.expected_config_queue_returned
         assert worker.connection is rq.queues["default"].connection
 
+
 class ConfigQueueOrderBase:
     config_queue: list[str] = []
     expected_config_queue_returned: list[str] = []
