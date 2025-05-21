@@ -73,12 +73,12 @@ def test_worker_queues(rq: RQ) -> None:
 
 
 class ConfigQueueOrderBase:
-    config_queue = []
-    expected_config_queue_returned = []
-    config_queue_connections = {}
-    param_queue_default_provided_first = ["default", "high"]
-    param_queue_default_provided = ["high", "default"]
-    param_queue_default_not_provided = ["high", "low"]
+    config_queue:list[str] = []
+    expected_config_queue_returned:list[str] = []
+    config_queue_connections:dict[str, dict[str, t.Any] | str | None] = {}
+    param_queue_default_provided_first:list[str] = ["default", "high"]
+    param_queue_default_provided:list[str] = ["high", "default"]
+    param_queue_default_not_provided:list[str] = ["high", "low"]
 
     @pytest.fixture
     def config(self, config: dict[str, t.Any], redis_port: int) -> dict[str, t.Any]:
