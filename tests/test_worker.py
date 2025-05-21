@@ -103,7 +103,7 @@ class TestConfigQueueOrderBase:
     def test_worker_no_param(self, rq: RQ) -> None:
         worker = rq.make_worker()
         assert (
-            worker.queues == self.config_queue
+            worker.queue_names() == self.config_queue
             if self.config_queue != []
             else ["default"]
         )
