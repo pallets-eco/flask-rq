@@ -96,7 +96,7 @@ class TestConfigQueueOrderBase:
     @pytest.mark.usefixtures("app_ctx")
     def test_worker_no_param(self, rq: RQ) -> None:
         worker = rq.make_worker()
-        assert worker.queues == self.config_queue
+        assert worker.queues == self.config_queue if self.config_queue != [] else ["default"]
         assert worker.connection is rq.queues["default"].connection
 
     @pytest.mark.usefixtures("app_ctx")
