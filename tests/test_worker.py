@@ -87,8 +87,12 @@ class TestConfigQueueOrderBase:
             "share_low": "low",
             "plain": None,
         }
-        self.config_queue_connections = {key: value for key, value in reference_connections.items() if key in self.config_queue}
-        
+        self.config_queue_connections = {
+            key: value
+            for key, value in reference_connections.items()
+            if key in self.config_queue
+        }
+
         config["RQ_QUEUES"] = self.config_queue
         config["RQ_QUEUE_CONNECTIONS"] = self.config_queue_connections
         return config
@@ -120,7 +124,6 @@ class TestConfigQueueOrderBase:
 
 class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
     testing_config_queue = ["default", "high", "low"]
-
 
 
 class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
