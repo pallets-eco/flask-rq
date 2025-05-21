@@ -70,3 +70,51 @@ def test_worker_queues(rq: RQ) -> None:
     worker = rq.make_worker(["low", "high"])
     assert len(worker.queues) == 2
     assert worker.connection is rq.queues["low"].connection
+
+
+class TestConfigQueueOrderBase:
+    config_queue = []
+    param_queue_default_provided_first = ["default", "high"]
+    param_queue_default_provided = ["high", "default"]
+    param_queue_default_not_provided = ["high", "low"]
+
+    @pytest.fixture
+    def config(self, config: dict[str, t.Any]) -> dict[str, t.Any]:
+        config["RQ_QUEUES"] = self.config_queue
+        return config
+    
+    @pytest.mark.usefixtures("app_ctx")
+    def test_worker_no_param(self, rq: RQ) -> None:
+        worker = rq.make_worker()
+        assert worker.queues == self.config_queue
+        assert worker.connection is rq.queues["default"].connection
+
+    @pytest.mark.usefixtures("app_ctx")
+    def test_worker_param_default_provided(self, rq: RQ) -> None:
+        worker = rq.make_worker(self.param_queue_default_provided)
+        assert worker.queues == self.param_queue_default_provided
+        assert worker.connection is rq.queues["default"].connection
+
+    @pytest.mark.usefixtures("app_ctx")
+    def test_worker_param_default_provided_first(self, rq: RQ) -> None:
+        worker = rq.make_worker(self.param_queue_default_provided_first)
+        assert worker.queues == self.param_queue_default_provided_first
+        assert worker.connection is rq.queues["default"].connection
+
+    @pytest.mark.usefixtures("app_ctx")
+    def test_worker_param_default_not_provided(self, rq: RQ) -> None:
+        worker = rq.make_worker(self.param_queue_default_not_provided)
+        assert worker.queues == self.param_queue_default_not_provided
+        assert worker.connection is rq.queues["default"].connection
+
+
+class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
+    testing_config_queue = ["default", "high", "low"]
+
+
+class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
+    testing_config_queue = [ "high","default", "low"]
+
+
+class TestConfigQueueDefaultNotPresent(TestConfigQueueOrderBase):
+    testing_config_queue = [ "high", "low"]
