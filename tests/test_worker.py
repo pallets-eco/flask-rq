@@ -72,7 +72,7 @@ def test_worker_queues(rq: RQ) -> None:
     assert worker.connection is rq.queues["low"].connection
 
 
-class TestConfigQueueOrderBase:
+class ConfigQueueOrderBase:
     config_queue = []
     config_queue_connections = {}
     param_queue_default_provided_first = ["default", "high"]
@@ -131,13 +131,13 @@ class TestConfigQueueOrderBase:
         )
 
 
-class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
+class TestConfigQueueDefaultProvidedFirst(ConfigQueueOrderBase):
     config_queue = ["default", "high", "low"]
 
 
-class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
+class TestConfigQueueDefaultPresentNotFirst(ConfigQueueOrderBase):
     config_queue = ["high", "default", "low"]
 
 
-class TestConfigQueueDefaultNotPresent(TestConfigQueueOrderBase):
+class TestConfigQueueDefaultNotPresent(ConfigQueueOrderBase):
     config_queue = ["high", "low"]
