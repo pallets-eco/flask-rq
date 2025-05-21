@@ -82,7 +82,7 @@ class TestConfigQueueOrderBase:
     def config(self, config: dict[str, t.Any]) -> dict[str, t.Any]:
         config["RQ_QUEUES"] = self.config_queue
         return config
-    
+
     @pytest.mark.usefixtures("app_ctx")
     def test_worker_no_param(self, rq: RQ) -> None:
         worker = rq.make_worker()
@@ -113,8 +113,8 @@ class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
 
 
 class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
-    testing_config_queue = [ "high","default", "low"]
+    testing_config_queue = ["high", "default", "low"]
 
 
 class TestConfigQueueDefaultNotPresent(TestConfigQueueOrderBase):
-    testing_config_queue = [ "high", "low"]
+    testing_config_queue = ["high", "low"]
