@@ -94,7 +94,9 @@ class TestConfigQueueOrderBase:
         }
 
         config["RQ_QUEUES"] = self.config_queue
+        print(config["RQ_QUEUES"])
         config["RQ_QUEUE_CONNECTIONS"] = self.config_queue_connections
+        print(config["RQ_QUEUE_CONNECTIONS"])
         return config
 
     @pytest.mark.usefixtures("app_ctx")
