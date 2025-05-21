@@ -74,7 +74,7 @@ def test_worker_queues(rq: RQ) -> None:
 
 class TestConfigQueueEmpty:
     config_queue: list[str] = []
-    expected_config_queue_returned: list[str] = []
+    expected_config_queue_returned: list[str] = ["default"]
     config_queue_connections: dict[str, dict[str, t.Any] | str | None] = {}
     param_queue_default_provided_first: list[str] = ["default", "high"]
     param_queue_default_provided: list[str] = ["high", "default"]
