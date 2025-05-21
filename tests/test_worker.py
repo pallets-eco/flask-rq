@@ -115,7 +115,7 @@ class TestConfigQueueOrderBase:
         assert worker.queue_names() == self.param_queue_default_provided
         assert (
             worker.connection
-            is rq.queues[self.param_queue_default_provided[0]].connection
+            is rq.queues["default"].connection
         )
 
     @pytest.mark.usefixtures("app_ctx")
