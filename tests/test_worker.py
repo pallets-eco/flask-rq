@@ -123,12 +123,12 @@ class TestConfigQueueOrderBase:
 
 
 class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
-    testing_config_queue = ["default", "high", "low"]
+    config_queue = ["default", "high", "low"]
 
 
 class TestConfigQueueDefaultPresentNotFirst(TestConfigQueueOrderBase):
-    testing_config_queue = ["high", "default", "low"]
+    config_queue = ["high", "default", "low"]
 
 
 class TestConfigQueueDefaultNotPresent(TestConfigQueueOrderBase):
-    testing_config_queue = ["high", "low"]
+    config_queue = ["high", "low"]
