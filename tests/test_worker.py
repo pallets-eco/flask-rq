@@ -82,7 +82,7 @@ class ConfigQueueOrderBase:
 
     @pytest.fixture
     def config(self, config: dict[str, t.Any], redis_port: int) -> dict[str, t.Any]:
-        reference_connections = {
+        reference_connections: dict[str, dict[str, t.Any] | str | None] = {
             "low": {"port": redis_port, "db": 1},
             "high": f"redis://localhost:{redis_port}/2",
             "share_low": "low",
