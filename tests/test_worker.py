@@ -113,7 +113,7 @@ class TestConfigQueueOrderBase:
     def test_worker_param_default_provided(self, rq: RQ) -> None:
         worker = rq.make_worker(self.param_queue_default_provided)
         assert worker.queue_names() == self.param_queue_default_provided
-        assert worker.connection is rq.queues["default"].connection
+        assert worker.connection is rq.queues[self.param_queue_default_provided[0]].connection
 
     @pytest.mark.usefixtures("app_ctx")
     def test_worker_param_default_provided_first(self, rq: RQ) -> None:
@@ -125,7 +125,7 @@ class TestConfigQueueOrderBase:
     def test_worker_param_default_not_provided(self, rq: RQ) -> None:
         worker = rq.make_worker(self.param_queue_default_not_provided)
         assert worker.queue_names() == self.param_queue_default_not_provided
-        assert worker.connection is rq.queues["default"].connection
+        assert worker.connection is rq.queues[self.param_queue_default_not_provided[0]].connection
 
 
 class TestConfigQueueDefaultProvidedFirst(TestConfigQueueOrderBase):
