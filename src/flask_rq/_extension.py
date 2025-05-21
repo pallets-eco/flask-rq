@@ -130,7 +130,7 @@ class RQ:
         return Worker(
             worker_queues,
             job_class=worker_queues[0].job_class,
-            connection=known_queues["default"],
+            connection=known_queues["default"].connection,
             **kwargs,
         )
 
