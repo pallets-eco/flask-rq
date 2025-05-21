@@ -127,7 +127,12 @@ class RQ:
         else:
             worker_queues.extend(known_queues.values())
 
-        return Worker(worker_queues, job_class=worker_queues[0].job_class, connection=known_queues["default"], **kwargs)
+        return Worker(
+            worker_queues,
+            job_class=worker_queues[0].job_class,
+            connection=known_queues["default"],
+            **kwargs,
+        )
 
     @t.overload
     def job(self, f: t.Callable[P, R], *, queue: str = ...) -> JobWrapper[P, R]: ...
