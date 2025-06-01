@@ -2,6 +2,7 @@
 
 Unreleased
 
+- Drop support for Python 3.9.
 - Remove previously deprecated code. Use 0.3 as an intermediate upgrade to see
   deprecation warnings.
     - The global API (`get_queue`, `get_worker`, `@job`) is removed.
