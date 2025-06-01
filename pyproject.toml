@@ -3,9 +3,9 @@ name = "Flask-RQ"
 version = "0.3.3.dev"
 description = "RQ (Redis Queue) integration for Flask and Quart applications."
 readme = "README.md"
-maintainers = [{ name = "Pallets Ecosystem", email = "contact@palletsprojects.com" }]
 license = "MIT"
 license-files = ["LICENSE.txt"]
+maintainers = [{ name = "Pallets Ecosystem", email = "contact@palletsprojects.com" }]
 requires-python = ">=3.9"
 dependencies = [
     "flask[async]>=3.0",
@@ -19,8 +19,9 @@ quart = [
 ]
 
 [project.urls]
+Donate = "https://palletsprojects.com/donate"
 Documentation = "https://flask-rq.readthedocs.io"
-Changes = "https://flask-rq.readthedocs.io/en/stable/changes/"
+Changes = "https://flask-rq.readthedocs.io/page/changes/"
 Source = "https://github.com/pallets-eco/flask-rq/"
 Chat = "https://discord.gg/pallets"
 
@@ -33,14 +34,6 @@ name = "flask_rq"
 
 [dependency-groups]
 dev = [
-    "ephemeral-port-reserve",
-    "mypy",
-    "pre-commit",
-    "pyright",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
-    "quart",
     "ruff",
     "tox",
     "tox-uv",
@@ -55,10 +48,11 @@ docs-auto = [
     "sphinx-autobuild",
 ]
 gha-update = [
-    "gha-update ; python_version>='3.12'",
+    "gha-update ; python_full_version >= '3.12'",
 ]
 pre-commit = [
     "pre-commit",
+    "pre-commit-uv",
 ]
 tests = [
     "ephemeral-port-reserve",
@@ -74,6 +68,9 @@ typing = [
     "pytest",
     "quart",
 ]
+
+[tool.uv]
+default-groups = ["dev", "pre-commit", "tests", "typing"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -148,6 +145,7 @@ env_list = [
 ]
 
 [tool.tox.env_run_base]
+description = "pytest on latest dependency versions"
 runner = "uv-venv-lock-runner"
 package = "wheel"
 wheel_build_env = ".pkg"
@@ -161,11 +159,13 @@ commands = [[
 ]]
 
 [tool.tox.env.style]
+description = "run all pre-commit hooks on all files"
 dependency_groups = ["pre-commit"]
 skip_install = true
 commands = [["pre-commit", "run", "--all-files"]]
 
 [tool.tox.env.typing]
+description = "run static type checkers"
 dependency_groups = ["typing"]
 commands = [
     ["mypy"],
@@ -174,26 +174,33 @@ commands = [
 ]
 
 [tool.tox.env.docs]
+description = "build docs"
 dependency_groups = ["docs"]
 commands = [["sphinx-build", "-E", "-W", "-b", "dirhtml", "docs", "docs/_build/dirhtml"]]
 
 [tool.tox.env.docs-auto]
+description = "continuously rebuild docs and start a local server"
 dependency_groups = ["docs", "docs-auto"]
 commands = [["sphinx-autobuild", "-W", "-b", "dirhtml", "--watch", "src", "docs", "docs/_build/dirhtml"]]
 
 [tool.tox.env.update-actions]
+description = "update GitHub Actions pins"
 labels = ["update"]
 dependency_groups = ["gha-update"]
 skip_install = true
 commands = [["gha-update"]]
 
 [tool.tox.env.update-pre_commit]
+description = "update pre-commit pins"
 labels = ["update"]
 dependency_groups = ["pre-commit"]
 skip_install = true
 commands = [["pre-commit", "autoupdate", "--freeze", "-j4"]]
 
 [tool.tox.env.update-requirements]
+description = "update uv lock"
 labels = ["update"]
+dependency_groups = []
+no_default_groups = true
 skip_install = true
 commands = [["uv", "lock", { replace = "posargs", default = ["-U"], extend = true }]]
