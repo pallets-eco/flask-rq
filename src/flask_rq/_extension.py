@@ -96,16 +96,34 @@ class RQ:
         """Get a specific queue associated with the current application.
 
         The :attr:`queue` attribute is a shortcut for calling this without an
-        argument to get the default queue.
+        argument to get the queue named ``"default"``.
 
         :param name: The name associated with the queue.
         """
-        return self.queues[name]
+        try:
+            return self.queues[name]
+        except KeyError:
+            # use e.add_note once Python >= 3.11
+            raise KeyError(f'"{name}" not configured in `RQ_QUEUES`.') from None
 
     @property
     def queue(self) -> Queue:
-        """The default queue associated with the current application."""
-        return self.get_queue()
+        """The queue named ``"default"`` associated with the current
+        application.
+
+        If ``"default"`` is not configured, an error is raised. Use
+        :attr:`queues[name] <queues>` to select a queue by name in that case.
+
+        .. versionchanged:: 1.0
+            Raises an error if ``"default"`` is not configured.
+        """
+        try:
+            return self.get_queue()
+        except KeyError as e:
+            # use e.add_note once Python >= 3.11
+            raise KeyError(
+                f"{e.args[0]}\nUse `rq.get_queue(name)` to use a specific queue."
+            ) from None
 
     def make_worker(
         self, queues: list[str] | tuple[str, ...] | None = None, **kwargs: t.Any
@@ -114,18 +132,18 @@ class RQ:
         configured queues and execute jobs in the application context.
 
         :param queues: The named queues for the worker to watch, using the first
-            queue's connection. By default, watches all the configured queues
-            using the default queue's connection.
+            queue's connection. By default, uses all the queues in order from
+            :data:`RQ_QUEUES`.
         :param kwargs: Other arguments to pass to the worker constructor.
+
+        .. versionchanged:: 1.0
+            Uses order from ``RQ_QUEUES`` instead of forcing ``"default"`` first.
         """
         app = self._get_current_app()
         known_queues = self._queues[app]
         worker_queues: list[Queue] = []
 
         if not queues:
-            known_queues = known_queues.copy()
-            # Default queue is first so its connection is used.
-            worker_queues.append(known_queues.pop("default"))
             worker_queues.extend(known_queues.values())
         else:
             worker_queues.extend(known_queues[k] for k in queues)

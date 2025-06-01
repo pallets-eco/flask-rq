@@ -36,7 +36,7 @@ does, but goes through Flask-RQ to create the job class and worker. Pass the
 If you need to customize the worker beyond what the CLI enables, you can write a
 Python script to create and run the worker. The script must import your app and
 the extension, create an app context, and then call {meth}`.RQ.make_worker`.
-You can pass whaterver arguments you need to `make_worker` and the worker's
+You can pass whatever arguments you need to `make_worker` and the worker's
 `work` method, and do any other customizations you need during the script.
 
 ```python
@@ -56,13 +56,13 @@ $ python my_worker.py
 
 ## Queues and the Connection
 
-By default, the worker will watch all configured queues ({data}`RQ_QUEUES`)
-using the default queue's connection. You can pass a list of queues to the CLI
+By default, the worker will watch all configured queues ({data}`RQ_QUEUES`) in
+the order configured. You can pass a list of queues to the CLI
 command or {meth}`RQ.make_worker`, in which case the worker will only watch
-those queues using the first listed queue's connection.
+those queues. Either way, the first listed queue's connection is used.
 
 ```
-# all queues, default's connection
+# all queues, first configured queue's connection
 $ flask rq worker
 
 # two queues, email's connection

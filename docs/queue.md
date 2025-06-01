@@ -12,16 +12,15 @@ By default, with no configuration, Flask-RQ uses the `"default"` queue and
 connects to a local Redis server. This should be fine for most applications.
 
 If you want to use more queues, you must name each one using the
-{data}`.RQ_QUEUES` config. The `"default"` queue is always configured, regardless
-of if it's listed.
+{data}`.RQ_QUEUES` config. You must include `"default"` if you want to access
+{attr}`.RQ.queue`.
 
 ```python
-RQ_QUEUES = ["email", "priority"]
+RQ_QUEUES = ["email", "priority", "default"]
 ```
 
-The above results in three queues (including `"default"`), all using the same
-Redis connection pool. The connection is configured using the
-{data}`.RQ_CONNECTION` config.
+The above results in three queues, all using the same Redis connection pool. The
+connection is configured using the {data}`.RQ_CONNECTION` config.
 
 ```python
 RQ_CONNECTION = "redis://redis.my-app.example"
@@ -91,7 +90,7 @@ use references to share another connection between queues.
 
 ```python
 RQ_CONNECTION = "redis://redis.my-app.example"
-RQ_QUEUES = ["priority", "email", "email-priority"]
+RQ_QUEUES = ["priority", "email", "email-priority", "default"]
 RQ_QUEUE_CONNECTIONS = {
     "email": "redis://email-redis.my-app.example",
     "email-priority": "email"

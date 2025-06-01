@@ -59,14 +59,28 @@ async def test_quart(quart_app: Quart, rq: RQ, func: t.Callable[[], str]) -> Non
 
 
 @pytest.mark.usefixtures("app_ctx")
-def test_worker_default(rq: RQ) -> None:
+def test_worker_no_arg(rq: RQ) -> None:
     worker = rq.make_worker()
     assert len(worker.queues) == 5
-    assert worker.connection is rq.queues["default"].connection
+    assert worker.connection is rq.queue.connection
 
 
 @pytest.mark.usefixtures("app_ctx")
-def test_worker_queues(rq: RQ) -> None:
+def test_worker_default_first(rq: RQ) -> None:
+    worker = rq.make_worker(["default", "high"])
+    assert len(worker.queues) == 2
+    assert worker.connection == rq.queue.connection
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_worker_default_second(rq: RQ) -> None:
+    worker = rq.make_worker(["high", "default"])
+    assert len(worker.queues) == 2
+    assert worker.connection == rq.queues["high"].connection
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_worker_no_default(rq: RQ) -> None:
     worker = rq.make_worker(["low", "high"])
     assert len(worker.queues) == 2
     assert worker.connection is rq.queues["low"].connection

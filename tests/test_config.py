@@ -9,6 +9,29 @@ from redis import Redis
 from flask_rq import RQ
 
 
+@pytest.mark.usefixtures("app_ctx")
+def test_queues_unset(app: Flask) -> None:
+    """When RQ_QUEUES is not set, default queue is added."""
+    del app.config["RQ_QUEUES"]
+    rq = RQ(app)
+    assert list(rq.queues) == ["default"]
+    assert rq.queue
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_queues_no_default(app: Flask) -> None:
+    """When RQ_QUEUES is set, default queue is not added."""
+    app.config["RQ_QUEUES"] = ["high", "low"]
+    rq = RQ(app)
+    assert (list(rq.queues)) == ["high", "low"]
+
+    with pytest.raises(KeyError, match="get_queue"):
+        assert rq.queue and False
+
+    with pytest.raises(KeyError, match="not configured"):
+        assert rq.get_queue() and False
+
+
 def test_no_testing_yes_async() -> None:
     """Queue.is_async is True if app.testing is False."""
     app = Flask(__name__)
@@ -39,7 +62,7 @@ def test_config_async() -> None:
         assert rq.queue.is_async
 
 
-def test_default(app: Flask) -> None:
+def test_default_connection(app: Flask) -> None:
     """Default queue uses config instead of default values."""
     app.config["RQ_CONNECTION"] = {"port": 24242}
     rq = RQ(app)
