@@ -1,37 +1,45 @@
-name: tests
+name: Tests
 on:
   pull_request:
+    paths-ignore: ['docs/**', 'README.md']
   push:
     branches: [main, stable]
+    paths-ignore: ['docs/**', 'README.md']
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.name || matrix.python }}
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.13', '3.12', '3.11', '3.10', '3.9']
+        include:
+          - {python: '3.13'}
+          - {python: '3.12'}
+          - {python: '3.11'}
+          - {python: '3.10'}
+          - {python: '3.9'}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5.4.1
+      - uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb # v6.1.0
         with:
           enable-cache: true
           prune-cache: false
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ matrix.python }}
       - uses: shogo82148/actions-setup-redis@d31b14af2e31afa082d0b82dd37888cb804cfa4c # v1.39.0
         with:
           auto-start: false
-      - run: uv run --locked tox run -e ${{ format('py{0}', matrix.python) }}
+      - run: uv run --locked tox run -e ${{ matrix.tox || format('py{0}', matrix.python) }}
   typing:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5.4.1
+      - uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb # v6.1.0
         with:
           enable-cache: true
           prune-cache: false
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version-file: pyproject.toml
       - name: cache mypy
