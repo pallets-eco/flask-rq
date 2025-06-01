@@ -59,116 +59,28 @@ async def test_quart(quart_app: Quart, rq: RQ, func: t.Callable[[], str]) -> Non
 
 
 @pytest.mark.usefixtures("app_ctx")
-def test_worker_default(rq: RQ) -> None:
+def test_worker_no_arg(rq: RQ) -> None:
     worker = rq.make_worker()
     assert len(worker.queues) == 5
-    assert worker.connection is rq.queues["default"].connection
+    assert worker.connection is rq.queue.connection
 
 
 @pytest.mark.usefixtures("app_ctx")
-def test_worker_queues(rq: RQ) -> None:
+def test_worker_default_first(rq: RQ) -> None:
+    worker = rq.make_worker(["default", "high"])
+    assert len(worker.queues) == 2
+    assert worker.connection == rq.queue.connection
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_worker_default_second(rq: RQ) -> None:
+    worker = rq.make_worker(["high", "default"])
+    assert len(worker.queues) == 2
+    assert worker.connection == rq.queues["high"].connection
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_worker_no_default(rq: RQ) -> None:
     worker = rq.make_worker(["low", "high"])
     assert len(worker.queues) == 2
     assert worker.connection is rq.queues["low"].connection
-
-
-class TestConfigQueueEmpty:
-    config_queue: list[str] = []
-    expected_config_queue_returned: list[str] = ["default"]
-    config_queue_connections: dict[str, dict[str, t.Any] | str | None] = {}
-    param_queue_default_provided_first: list[str] = ["default", "high"]
-    param_queue_default_provided: list[str] = ["high", "default"]
-    param_queue_default_not_provided: list[str] = ["high", "low"]
-
-    @pytest.fixture
-    def config(self, config: dict[str, t.Any], redis_port: int) -> dict[str, t.Any]:
-        reference_connections: dict[str, dict[str, t.Any] | str | None] = {
-            "low": {"port": redis_port, "db": 1},
-            "high": f"redis://localhost:{redis_port}/2",
-            "share_low": "low",
-            "plain": None,
-        }
-        self.config_queue_connections = {
-            key: value
-            for key, value in reference_connections.items()
-            if key in self.config_queue
-        }
-
-        config["RQ_QUEUES"] = self.config_queue
-        config["RQ_QUEUE_CONNECTIONS"] = self.config_queue_connections
-        return config
-
-    @pytest.mark.usefixtures("app_ctx")
-    def test_worker_no_param(self, rq: RQ) -> None:
-        worker = rq.make_worker()
-        assert worker.queue_names() == self.expected_config_queue_returned
-        assert worker.connection is rq.queues["default"].connection
-
-
-class ConfigQueueOrderBase:
-    config_queue: list[str] = []
-    expected_config_queue_returned: list[str] = []
-    config_queue_connections: dict[str, dict[str, t.Any] | str | None] = {}
-    param_queue_default_provided_first: list[str] = ["default", "high"]
-    param_queue_default_provided: list[str] = ["high", "default"]
-    param_queue_default_not_provided: list[str] = ["high", "low"]
-
-    @pytest.fixture
-    def config(self, config: dict[str, t.Any], redis_port: int) -> dict[str, t.Any]:
-        reference_connections: dict[str, dict[str, t.Any] | str | None] = {
-            "low": {"port": redis_port, "db": 1},
-            "high": f"redis://localhost:{redis_port}/2",
-            "share_low": "low",
-            "plain": None,
-        }
-        self.config_queue_connections = {
-            key: value
-            for key, value in reference_connections.items()
-            if key in self.config_queue
-        }
-
-        config["RQ_QUEUES"] = self.config_queue
-        config["RQ_QUEUE_CONNECTIONS"] = self.config_queue_connections
-        return config
-
-    @pytest.mark.usefixtures("app_ctx")
-    def test_worker_no_param(self, rq: RQ) -> None:
-        worker = rq.make_worker()
-        assert worker.queue_names() == self.expected_config_queue_returned
-        assert worker.connection is rq.queues["default"].connection
-
-    @pytest.mark.usefixtures("app_ctx")
-    def test_worker_param_default_provided(self, rq: RQ) -> None:
-        worker = rq.make_worker(self.param_queue_default_provided)
-        assert worker.queue_names() == self.param_queue_default_provided
-        assert worker.connection is rq.queues["default"].connection
-
-    @pytest.mark.usefixtures("app_ctx")
-    def test_worker_param_default_provided_first(self, rq: RQ) -> None:
-        worker = rq.make_worker(self.param_queue_default_provided_first)
-        assert worker.queue_names() == self.param_queue_default_provided_first
-        assert worker.connection is rq.queues["default"].connection
-
-    @pytest.mark.usefixtures("app_ctx")
-    def test_worker_param_default_not_provided(self, rq: RQ) -> None:
-        worker = rq.make_worker(self.param_queue_default_not_provided)
-        assert worker.queue_names() == self.param_queue_default_not_provided
-        assert (
-            worker.connection
-            is rq.queues[self.param_queue_default_not_provided[0]].connection
-        )
-
-
-class TestConfigQueueDefaultProvidedFirst(ConfigQueueOrderBase):
-    config_queue = ["default", "high", "low"]
-    expected_config_queue_returned = ["default", "high", "low"]
-
-
-class TestConfigQueueDefaultPresentNotFirst(ConfigQueueOrderBase):
-    config_queue = ["high", "default", "low"]
-    expected_config_queue_returned = ["high", "default", "low"]
-
-
-class TestConfigQueueDefaultNotPresent(ConfigQueueOrderBase):
-    config_queue = ["high", "low"]
-    expected_config_queue_returned = ["default", "high", "low"]

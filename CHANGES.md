@@ -8,6 +8,11 @@ Unreleased
     - The "flat" config is not used.
     - The `@job` decorator `delay` function is renamed to `enqueue`.
     - `__version__` is removed.
+- The `"default"` queue is not configured automatically if `RQ_QUEUES` is set,
+  it must be listed in that case. {issue}`53`
+- The worker uses the order in `RQ_QUEUES` rather than putting `"default"`
+  first. The first queue's connection is used, rather than the default's.
+  {issue}`53`
 
 ## Version 0.3.3
 
