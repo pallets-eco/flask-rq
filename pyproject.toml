@@ -180,6 +180,7 @@ description = "update GitHub Actions pins"
 labels = ["update"]
 dependency_groups = ["gha-update"]
 skip_install = true
+pass_env = ["GITHUB_TOKEN"]
 commands = [["gha-update"]]
 
 [tool.tox.env.update-pre_commit]
