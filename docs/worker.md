@@ -36,7 +36,7 @@ does, but goes through Flask-RQ to create the job class and worker. Pass the
 If you need to customize the worker beyond what the CLI enables, you can write a
 Python script to create and run the worker. The script must import your app and
 the extension, create an app context, and then call {meth}`.RQ.make_worker`.
-You can pass whaterver arguments you need to `make_worker` and the worker's
+You can pass whatever arguments you need to `make_worker` and the worker's
 `work` method, and do any other customizations you need during the script.
 
 ```python

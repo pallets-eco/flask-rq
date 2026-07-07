@@ -5,6 +5,10 @@ on:
   push:
     branches: [main, stable]
     paths-ignore: ['docs/**', 'README.md']
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   tests:
     name: ${{ matrix.name || matrix.python }}
@@ -13,6 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - {python: '3.14'}
           - {python: '3.13'}
           - {python: '3.12'}
           - {python: '3.11'}
@@ -20,6 +25,8 @@ jobs:
           - {python: '3.9'}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
       - uses: astral-sh/setup-uv@f98e06938123ccabd21905ea5d0069192241f9f1 # v8.3.1
         with:
           enable-cache: true
@@ -27,14 +34,15 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ matrix.python }}
-      - uses: shogo82148/actions-setup-redis@81c3559f3be13c0fead88f562d48fa3a62e5fc93 # v1.52.1
-        with:
-          auto-start: false
-      - run: uv run --locked tox run -e ${{ matrix.tox || format('py{0}', matrix.python) }}
+      - run: uv run --locked --no-default-groups --group dev tox run
+        env:
+          TOX_ENV: ${{ matrix.tox || format('py{0}', matrix.python) }}
   typing:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
       - uses: astral-sh/setup-uv@f98e06938123ccabd21905ea5d0069192241f9f1 # v8.3.1
         with:
           enable-cache: true
@@ -47,4 +55,4 @@ jobs:
         with:
           path: ./.mypy_cache
           key: mypy|${{ hashFiles('pyproject.toml') }}
-      - run: uv run --locked tox run -e typing
+      - run: uv run --locked --no-default-groups --group dev tox run -e typing

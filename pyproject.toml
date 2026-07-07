@@ -5,7 +5,7 @@ description = "RQ (Redis Queue) integration for Flask and Quart applications."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
-maintainers = [{ name = "Pallets Ecosystem", email = "contact@palletsprojects.com" }]
+maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com"}]
 requires-python = ">=3.9"
 dependencies = [
     "flask[async]>=3.0",
@@ -26,7 +26,7 @@ Source = "https://github.com/pallets-eco/flask-rq/"
 Chat = "https://discord.gg/pallets"
 
 [build-system]
-requires = ["flit-core<4"]
+requires = ["flit_core>=3.11,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
@@ -106,11 +106,6 @@ strict = true
 module = ["ephemeral_port_reserve"]
 ignore_missing_imports = true
 
-[tool.pyright]
-pythonVersion = "3.9"
-include = ["src", "tests"]
-typeCheckingMode = "standard"
-
 [tool.ruff]
 src = ["src"]
 fix = true
@@ -131,14 +126,12 @@ select = [
 force-single-line = true
 order-by-type = false
 
-[tool.gha-update]
-tag-only = [
-    "slsa-framework/slsa-github-generator",
-]
+[tool.codespell]
+ignore-words-list = "te,redict"
 
 [tool.tox]
 env_list = [
-    "py3.13", "py3.12", "py3.11", "py3.10", "py3.9",
+    "py3.14", "py3.13", "py3.12", "py3.11", "py3.10", "py3.9",
     "style",
     "typing",
     "docs",
@@ -155,7 +148,7 @@ dependency_groups = ["tests"]
 commands = [[
     "pytest", "-v", "--tb=short", "--basetemp={env_tmp_dir}",
     "--cov", "--cov-report=term-missing",
-    { replace = "posargs", default = [], extend = true },
+    {replace = "posargs", default = [], extend = true},
 ]]
 
 [tool.tox.env.style]
@@ -169,7 +162,6 @@ description = "run static type checkers"
 dependency_groups = ["typing"]
 commands = [
     ["mypy"],
-    ["pyright"],
     ["pyright", "--verifytypes", "flask_rq", "--ignoreexternal"],
 ]
 
@@ -203,4 +195,4 @@ labels = ["update"]
 dependency_groups = []
 no_default_groups = true
 skip_install = true
-commands = [["uv", "lock", { replace = "posargs", default = ["-U"], extend = true }]]
+commands = [["uv", "lock", {replace = "posargs", default = ["-U"], extend = true}]]
