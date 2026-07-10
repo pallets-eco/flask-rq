@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
+from datetime import UTC
 
 import pytest
 from rq.job import JobStatus
@@ -77,7 +77,7 @@ def test_job_low(rq: RQ) -> None:
 @pytest.mark.usefixtures("app_ctx")
 def test_enqueue_at(rq: RQ) -> None:
     job_mul = rq.job()(mul)
-    j = job_mul.enqueue_at(datetime.now(timezone.utc) + timedelta(days=1), 5, 10)
+    j = job_mul.enqueue_at(datetime.now(UTC) + timedelta(days=1), 5, 10)
     assert j.origin == "default"
     assert j.get_status() == JobStatus.SCHEDULED
     assert j.latest_result() is None

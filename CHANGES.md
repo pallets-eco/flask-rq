@@ -2,7 +2,7 @@
 
 Unreleased
 
-- Drop support for Python 3.9.
+- Drop support for Python 3.9 and 3.10.
 - Require RQ >= 2.4.
 - Remove previously deprecated code. Use 0.3 as an intermediate upgrade to see
   deprecation warnings.

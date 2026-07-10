@@ -106,9 +106,9 @@ class RQ:
         """
         try:
             return self.queues[name]
-        except KeyError:
-            # use e.add_note once Python >= 3.11
-            raise KeyError(f'"{name}" not configured in `RQ_QUEUES`.') from None
+        except KeyError as e:
+            e.add_note(f'"{name}" not configured in `RQ_QUEUES`.')
+            raise
 
     @property
     def queue(self) -> Queue:
@@ -124,10 +124,8 @@ class RQ:
         try:
             return self.get_queue()
         except KeyError as e:
-            # use e.add_note once Python >= 3.11
-            raise KeyError(
-                f"{e.args[0]}\nUse `rq.get_queue(name)` to use a specific queue."
-            ) from None
+            e.add_note("Use 'rq.get_queue(name)' to use a specific queue.")
+            raise
 
     def make_worker(
         self, queues: list[str] | tuple[str, ...] | None = None, **kwargs: t.Any
