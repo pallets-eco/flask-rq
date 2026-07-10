@@ -25,8 +25,9 @@ default connection {data}`RQ_CONNECTION` unless it is overrdden in
 By default, a single `"default"` queue is configured. If you pass a list of
 names, you must include `"default"` if you want to access {attr}`.RQ.queue`.
 
-.. versionchanged:: 1.0
-    `"default"` is not added automatically if other names are listed.
+:::{versionchanged} 1.0
+`"default"` is not added automatically if other names are listed.
+:::
 ```
 
 ```{data} RQ_ASYNC
