@@ -28,9 +28,7 @@ rq.queue.enqueue(update_stats, data=...)
 rq.queues["email"].enqueue(send_passord_reset, user_id=user.id)
 ```
 
-Both sync `def` and `async def` functions can be queued in the same way. Behind
-the scenes, Flask-RQ will add the appropriate wrapper to activate the app
-context, and the RQ worker will start an asyncio event loop if needed.
+Both sync `def` and `async def` job functions are supported.
 
 Jobs can be scheduled to run in the future or periodically. See {doc}`schedule`
 for more information.
@@ -80,11 +78,14 @@ rq.cron.register(send_reminder.func, cron="0 0 * * 1-5")
 
 ## Async
 
-Flask-RQ supports both Flask and Quart, and sync and async job functions. RQ
-handles sync and async job functions, but only uses the `redis.Redis` sync
-connection to communicate with Redis. You might be concerned that calling
-`enqueue` from an `async def` view function is blocking, but in practice it
-is a very fast operation to make some Redis API calls to record the job
+Flask-RQ supports both Flask and Quart. Sync `def` and `async def` functions can
+be queued in the same way. Behind the scenes, Flask-RQ will add the appropriate
+wrapper to activate the app context, and the RQ worker will start an asyncio
+event loop if needed.
+
+RQ only uses the `redis.Redis` sync connection to communicate with Redis. You
+might be concerned that calling `enqueue` from an `async def` view function is
+blocking, but in practice it is a very fast operation to record the job
 information. You can use {meth}`asyncio.to_thread` to call `enqueue` if you find
 that it is still an issue, or look into contributing async support to RQ.
 
