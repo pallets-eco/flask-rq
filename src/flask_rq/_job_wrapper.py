@@ -42,7 +42,9 @@ class JobWrapper(t.Generic[P, R]):
         self.func: t.Callable[P, R] = func
         """The wrapped function.
 
-        :meta private:
+        This wrapper class cannot be passed to `rq.Queue.enqueue` etc.
+        Preferably, use the wrapper's methods instead; pass this if you cannot
+        in some situation.
         """
 
         update_wrapper(self, func)
@@ -70,3 +72,19 @@ class JobWrapper(t.Generic[P, R]):
         """
         queue = self.rq.queues[self.queue]
         return queue.enqueue(self.func, *args, **kwargs)  # pyright: ignore
+
+    def cron_register(
+        self, interval: int | str, /, *args: P.args, **kwargs: P.kwargs
+    ) -> None:
+        """Register a Cron schedule for the wrapped function to be periodically
+        added to the queue. Calls :meth:`.RQ.cron_register`.
+
+        :param interval: An int number of seconds, or a Cron string, descrbing
+            when the job is scheduled.
+
+        :param args: Any positional arguments accepted by the wrapped function.
+        :param kwargs: Any keyword arguments accepted by the wrapped function.
+        """
+        self.rq.cron_register(
+            self.func, interval, queue=self.queue, args=args, kwargs=kwargs
+        )

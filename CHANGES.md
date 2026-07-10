@@ -3,6 +3,7 @@
 Unreleased
 
 - Drop support for Python 3.9.
+- Require RQ >= 2.4.
 - Remove previously deprecated code. Use 0.3 as an intermediate upgrade to see
   deprecation warnings.
     - The global API (`get_queue`, `get_worker`, `@job`) is removed.
@@ -14,6 +15,8 @@ Unreleased
 - The worker uses the order in `RQ_QUEUES` rather than putting `"default"`
   first. The first queue's connection is used, rather than the default's.
   {issue}`53`
+- Support RQ's Cron scheduler. The `flask rq cron` CLI command starts the
+  scheduler.
 
 ## Version 0.3.3
 

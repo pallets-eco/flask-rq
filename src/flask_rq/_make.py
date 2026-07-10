@@ -19,12 +19,7 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
         "queue_connections", {}
     )
     conn_confs["default"] = config.get("connection", {})
-    conn_cls_conf: str | type[Redis] = config.get("connection_class", "redis.Redis")
-
-    if isinstance(conn_cls_conf, str):
-        conn_cls: type[Redis] = resolve_name(conn_cls_conf)
-    else:
-        conn_cls = conn_cls_conf
+    conn_cls = get_conn_cls(config.get("connection_class"))
 
     if (is_async := config.get("async", None)) is None:
         is_async = not app.testing
@@ -45,7 +40,7 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
                 conn_refs[name] = conn_conf
             else:
                 # This is a connection URL.
-                connections[name] = conn_cls.from_url(conn_conf)  # pyright: ignore
+                connections[name] = conn_cls.from_url(conn_conf)
         else:
             connections[name] = conn_cls(**conn_conf)
 
@@ -72,3 +67,23 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
         queues[name] = Queue(name, conn, is_async=is_async, job_class=job_class)
 
     return queues
+
+
+def get_conn_cls(ref: str | type[Redis] | None) -> type[Redis]:
+    if ref is None:
+        ref = "redis.Redis"
+
+    if isinstance(ref, str):
+        return resolve_name(ref)  # type: ignore[no-any-return]
+
+    return ref
+
+
+def make_default_connection(app: Flask | Quart) -> Redis:
+    conn_cls = get_conn_cls(app.config.get("RQ_CONNECTION_CLASS"))
+    conn_conf: dict[str, t.Any] | str = app.config.get("RQ_CONNECTION", {})
+
+    if isinstance(conn_conf, str):
+        return conn_cls.from_url(conn_conf)
+
+    return conn_cls(**conn_conf)

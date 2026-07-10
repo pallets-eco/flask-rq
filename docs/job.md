@@ -32,6 +32,9 @@ Both sync `def` and `async def` functions can be queued in the same way. Behind
 the scenes, Flask-RQ will add the appropriate wrapper to activate the app
 context, and the RQ worker will start an asyncio event loop if needed.
 
+Jobs can be scheduled to run in the future or periodically. See {doc}`schedule`
+for more information.
+
 ## The `job` Decorator
 
 The {meth}`.RQ.job` decorator wraps a function to give it an
@@ -59,6 +62,21 @@ The wrapped function can still be called as a plain function as well.
 await send_password_reset(user_id=user.id)
 ```
 
+:::{warning}
+Due to the way RQ references jobs, it's not possible to pass decorated jobs to
+`queue.enqueue` or other functions.
+
+Either use the wrapper's methods, or pass its {attr}`~.JobWrapper.func`
+attribute.
+
+```python
+send_reminder.cron_register("0 0 * * 1-5")
+
+# same as
+rq.cron.register(send_reminder.func, cron="0 0 * * 1-5")
+```
+:::
+
 ## Async
 
 Flask-RQ supports both Flask and Quart, and sync and async job functions. RQ
@@ -72,31 +90,3 @@ that it is still an issue, or look into contributing async support to RQ.
 ```python
 await asyncio.to_thread(rq.enqueue, send_password_reset, user_id=user.id)
 ```
-
-## Scheduled Jobs
-
-RQ queues have two more methods that will enqueue the job to run at a specified
-time.
-
-- `rq.queue.enqueue_at(datetime, func, ...)` - a worker will execute the
-  function at the given {class}`~datetime.datetime`.
-- `rq.queue.enqueue_in(timedelta, func, ...` - a worker will execute the
-  function after the given {class}`~datetime.timedelta` interval has passed.
-
-This requires running at least one worker with the scheduler enabled. Running
-multiple workers with the scheduler is also ok.
-
-```
-$ flask rq worker --with-scheduler
-```
-
-RQ does not currently provide a way to run jobs on a repeated interval or Cron
-schedule. [RQ-Scheduler][] provides separate commands for doing so, but Flask-RQ
-does not yet provide integration, so any jobs will not be run in the app context
-automatically.
-
-[RQ-Scheduler]: https://github.com/rq/rq-scheduler
-
-It is possible to schedule repeat intervals without RQ-Scheduler by
-having a job enqueue itself again after running. You can use RQ's job callback
-feature to ensure it's rescheduled or retired regardless of success.

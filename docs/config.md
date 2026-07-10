@@ -9,9 +9,9 @@ Configuration for Flask-RQ uses the following Flask config keys.
 :type: str | dict[str, typing.Any] | None
 :value: "redis://127.0.0.1:6379/0"
 
-The default Redis connection to use for each queue. The default assumes a local
-server. This can be a URL string or a dict of arguments to pass to
-{data}`RQ_CONNECTION_CLASS`.
+The default Redis connection to use for each queue, and for the Cron scheduler.
+The default assumes a local server. This can be a URL string or a dict of
+arguments to pass to {data}`RQ_CONNECTION_CLASS`.
 ```
 
 ```{data} RQ_QUEUES
