@@ -135,22 +135,25 @@ class RQ:
         """Create a worker for the current application that will watch the
         configured queues and execute jobs in the application context.
 
+        Use the ``flask rq worker`` CLI command to create and start a worker.
+        Use this method if you want to manage and start the worker from code,
+        such as in tests.
+
         :param queues: The named queues for the worker to watch, using the first
             queue's connection. By default, uses all the queues in order from
-            :data:`RQ_QUEUES`.
+            :data:`.RQ_QUEUES`.
         :param kwargs: Other arguments to pass to the worker constructor.
 
         .. versionchanged:: 1.0
             Uses order from ``RQ_QUEUES`` instead of forcing ``"default"`` first.
         """
-        app = self._get_current_app()
-        known_queues = self._queues[app]
-        worker_queues: list[Queue] = []
+        worker_queues: cabc.Sequence[Queue]
 
         if not queues:
-            worker_queues.extend(known_queues.values())
+            worker_queues = tuple(self.queues.values())
         else:
-            worker_queues.extend(known_queues[k] for k in queues)
+            known_queues = self.queues
+            worker_queues = tuple(known_queues[k] for k in queues)
 
         return Worker(worker_queues, job_class=worker_queues[0].job_class, **kwargs)
 
