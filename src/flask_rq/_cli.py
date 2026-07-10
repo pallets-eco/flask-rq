@@ -4,7 +4,7 @@ import typing as t
 
 import click
 import typing_extensions as te
-from click.decorators import _param_memo  # pyright: ignore
+from click.decorators import _param_memo
 from flask import Flask
 from flask.cli import ScriptInfo as FlaskScriptInfo
 from rq import cli as orig_cli
