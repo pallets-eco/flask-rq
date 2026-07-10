@@ -9,7 +9,7 @@ maintainers = [{name = "Pallets Ecosystem", email = "contact@palletsprojects.com
 requires-python = ">=3.10"
 dependencies = [
     "flask[async]>=3.0",
-    "rq>=2.0",
+    "rq>=2.4",
     "typing-extensions>=4.12",
 ]
 

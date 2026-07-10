@@ -1,11 +1,16 @@
 # Flask-RQ
 
 Flask-RQ is a [Flask]/[Quart] extension that background job execution using
-[RQ]. RQ allows queueing functions to be run in separate worker processes,
+[RQ].
+
+RQ allows queueing functions to be run in separate worker processes,
 allowing long-running jobs to run in the background without blocking the web app
-from returning a response quickly. Flask-RQ allows configuring RQ using Flask's
-config, and handles executing jobs in the application context, so other services
-like database connections are available.
+from returning a response quickly. RQ also provides Cron support for scheduling
+periodic jobs.
+
+Flask-RQ allows configuring RQ using Flask's config, and handles executing jobs
+in the application context, so other services like database connections are
+available.
 
 [Flask]: https://flask.palletsprojects.com
 [Quart]: https://quart.palletsprojects.com
@@ -32,6 +37,7 @@ start
 config
 queue
 job
+schedule
 worker
 server
 testing

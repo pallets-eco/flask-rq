@@ -56,9 +56,9 @@ $ python my_worker.py
 
 ## Queues and the Connection
 
-By default, the worker will watch all configured queues ({data}`RQ_QUEUES`) in
+By default, the worker will watch all configured queues ({data}`.RQ_QUEUES`) in
 the order configured. You can pass a list of queues to the CLI
-command or {meth}`RQ.make_worker`, in which case the worker will only watch
+command or {meth}`.RQ.make_worker`, in which case the worker will only watch
 those queues. Either way, the first listed queue's connection is used.
 
 ```

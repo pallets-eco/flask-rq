@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+import collections.abc as cabc
 import typing as t
 from weakref import WeakKeyDictionary
 
 import typing_extensions as te
 from flask import Flask
 from flask.globals import app_ctx as flask_app_ctx
+from rq import cron
 from rq import Queue
 from rq import Worker
 
 from ._cli import make_cli
 from ._job_wrapper import JobWrapper
+from ._make import make_default_connection
 from ._make import make_queues
 
 if t.TYPE_CHECKING:
@@ -27,6 +30,7 @@ class RQ:
     """
 
     def __init__(self, app: Flask | Quart | None = None) -> None:
+        self._cron_job_data: list[dict[str, t.Any]] = []
         self._queues: WeakKeyDictionary[Flask | Quart, dict[str, Queue]] = (
             WeakKeyDictionary()
         )
@@ -131,24 +135,83 @@ class RQ:
         """Create a worker for the current application that will watch the
         configured queues and execute jobs in the application context.
 
+        Use the ``flask rq worker`` CLI command to create and start a worker.
+        Use this method if you want to manage and start the worker from code,
+        such as in tests.
+
         :param queues: The named queues for the worker to watch, using the first
             queue's connection. By default, uses all the queues in order from
-            :data:`RQ_QUEUES`.
+            :data:`.RQ_QUEUES`.
         :param kwargs: Other arguments to pass to the worker constructor.
 
         .. versionchanged:: 1.0
             Uses order from ``RQ_QUEUES`` instead of forcing ``"default"`` first.
         """
-        app = self._get_current_app()
-        known_queues = self._queues[app]
-        worker_queues: list[Queue] = []
+        worker_queues: cabc.Sequence[Queue]
 
         if not queues:
-            worker_queues.extend(known_queues.values())
+            worker_queues = tuple(self.queues.values())
         else:
-            worker_queues.extend(known_queues[k] for k in queues)
+            known_queues = self.queues
+            worker_queues = tuple(known_queues[k] for k in queues)
 
         return Worker(worker_queues, job_class=worker_queues[0].job_class, **kwargs)
+
+    def cron_register(
+        self,
+        f: t.Callable[P, R],
+        /,
+        interval: int | str,
+        *,
+        queue: str = "default",
+        args: cabc.Sequence[t.Any] | None = None,
+        kwargs: cabc.Mapping[str, t.Any] | None = None,
+        **register_kwargs: t.Any,
+    ) -> None:
+        """Register a Cron job specific to this extension instance, as opposed
+        to globally with :func:`rq.cron.register`.
+
+        Use the ``flask rq cron`` CLI command to start the scheduler.
+
+        :param f: The job function.
+        :param interval: An int number of seconds, or a Cron string, descrbing
+            when the job is scheduled.
+        :param queue: The queue the scheduler will submit this job to.
+        :param args: Any positional arguments accepted by the wrapped function.
+        :param kwargs: Any keyword arguments accepted by the wrapped function.
+        :param register_kwargs: Any keyword arguments accepted by
+            {meth}`rq.cron.CronScheduler.register`.
+        """
+        register_kwargs.update(func=f, queue_name=queue, args=args, kwargs=kwargs)
+
+        if isinstance(interval, int):
+            register_kwargs["interval"] = interval
+        else:
+            register_kwargs["cron"] = interval
+
+        self._cron_job_data.append(register_kwargs)
+
+    def make_cron_scheduler(self) -> cron.CronScheduler:
+        """Create a Cron scheduler for the current application.
+
+        Use the ``flask rq cron`` CLI command to start the scheduler. Only use
+        this method directly if you want to start the scheduler from code.
+
+        Has the jobs registered to this extension instance with
+        :meth:`cron_register`, and the jobs registered globally with
+        :func:`rq.cron.register`.
+
+        Uses the default connection configured from :data:`.RQ_CONNECTION`.
+        """
+        app = self._get_current_app()
+        conn = make_default_connection(app)
+        scheduler = cron.create_cron(conn)
+        scheduler.name = app.name
+
+        for item in self._cron_job_data:
+            scheduler.register(**item)
+
+        return scheduler
 
     @t.overload
     def job(self, f: t.Callable[P, R], *, queue: str = ...) -> JobWrapper[P, R]: ...
@@ -164,9 +227,9 @@ class RQ:
         *,
         queue: str = "default",
     ) -> JobWrapper[P, R] | t.Callable[[t.Callable[P, R]], JobWrapper[P, R]]:
-        """Wrap the decorated function to add an `enqueue` method to it.
-        `job.enqueue()` is a shortcut for `rq.queue.enqueue(job)`. Can be
-        used as a decorator with or without arguments, or as a function.
+        """Wrap the decorated function to add enqueue methods to it. See
+        :class:`.JobWrapper` for the available methods. Can be used as a
+        decorator with or without arguments.
 
         .. code-block:: python
 
@@ -177,8 +240,6 @@ class RQ:
             @rq.job(queue="math")
             def sub(a, b):
                 return a - b
-
-            mul = rq.job(lambda a, b: a * b, queue="math")
 
         :param f: The job function. If not given, return a new decorator that
             uses the other given arguments.

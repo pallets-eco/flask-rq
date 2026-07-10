@@ -551,7 +551,7 @@ typing = [
 requires-dist = [
     { name = "flask", extras = ["async"], specifier = ">=3.0" },
     { name = "quart", marker = "extra == 'quart'", specifier = ">=0.20" },
-    { name = "rq", specifier = ">=2.0" },
+    { name = "rq", specifier = ">=2.4" },
     { name = "typing-extensions", specifier = ">=4.12" },
 ]
 provides-extras = ["quart"]

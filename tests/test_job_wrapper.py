@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import inspect
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
 import pytest
+from rq.job import JobStatus
 
 from flask_rq import RQ
 
@@ -68,3 +72,22 @@ def test_job_low(rq: RQ) -> None:
     r = j.latest_result()
     assert r is not None
     assert r.return_value == 32
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_enqueue_at(rq: RQ) -> None:
+    job_mul = rq.job()(mul)
+    j = job_mul.enqueue_at(datetime.now(timezone.utc) + timedelta(days=1), 5, 10)
+    assert j.origin == "default"
+    assert j.get_status() == JobStatus.SCHEDULED
+    assert j.latest_result() is None
+
+
+@pytest.mark.parametrize("when", [60, timedelta(days=1)])
+@pytest.mark.usefixtures("app_ctx")
+def test_enqueue_in(rq: RQ, when: int | timedelta) -> None:
+    job_mul = rq.job()(mul)
+    j = job_mul.enqueue_in(when, 5, 10)
+    assert j.origin == "default"
+    assert j.get_status() == JobStatus.SCHEDULED
+    assert j.latest_result() is None

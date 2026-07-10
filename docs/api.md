@@ -14,12 +14,19 @@ or private and may change at any time.
 
 .. class:: JobWrapper
 
-    The wrapper returned when using the :class:`RQ.job <flask_rq.RQ.job>`
-    decorator. This class itself is not part of the public API, and should not
-    be imported directly. The methods documented below are part of the public
-    API.
+    The wrapper returned when using the :class:`~.RQ.job` decorator. This class
+    itself is not part of the public API, and should not be imported directly.
+    The members documented below are part of the public API.
 
     .. automethod:: enqueue
 
+    .. automethod:: enqueue_at
+
+    .. automethod:: enqueue_in
+
+    .. automethod:: cron_register
+
     .. automethod:: __call__
+
+    .. autoattribute:: func
 ```

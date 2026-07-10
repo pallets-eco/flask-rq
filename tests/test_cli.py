@@ -61,3 +61,11 @@ def test_worker(worker_cls: Mock, app: Flask) -> None:
     work: Mock = worker.work
     work.assert_called()
     assert "burst" in work.call_args.kwargs
+
+
+@pytest.mark.usefixtures("rq")
+@patch("rq.cron.CronScheduler.start", spec=True)
+def test_cron(start_func: Mock, app: Flask) -> None:
+    runner = app.test_cli_runner()
+    runner.invoke(args=["rq", "cron"])
+    start_func.assert_called()

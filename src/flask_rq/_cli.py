@@ -4,7 +4,7 @@ import typing as t
 
 import click
 import typing_extensions as te
-from click.decorators import _param_memo  # pyright: ignore
+from click.decorators import _param_memo
 from flask import Flask
 from flask.cli import ScriptInfo as FlaskScriptInfo
 from rq import cli as orig_cli
@@ -29,6 +29,7 @@ def make_cli(app: Flask | Quart) -> None:
     """
     group = app.cli.group("rq")(rq_group)
     group.command("worker", with_appcontext=True)(worker_cmd)
+    group.command("cron", with_appcontext=True)(cron_cmd)
     app.cli.add_command(group)
 
 
@@ -107,3 +108,9 @@ def worker_cmd(
         max_idle_time=max_idle_time,
         with_scheduler=with_scheduler,
     )
+
+
+@from_rq_cmd(orig_cli.cron, set())  # type: ignore[attr-defined]
+@click.pass_obj
+def cron_cmd(obj: RQ) -> None:
+    obj.make_cron_scheduler().start()  # type: ignore[no-untyped-call]
