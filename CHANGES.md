@@ -17,6 +17,8 @@ Unreleased
   {issue}`53`
 - Support RQ's Cron scheduler. The `flask rq cron` CLI command starts the
   scheduler.
+- Add `enqueue_at`, `enqueue_in`, and `cron_register` methods to the `@job`
+  wrapper.
 
 ## Version 0.3.3
 

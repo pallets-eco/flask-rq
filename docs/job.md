@@ -12,8 +12,8 @@ view functions and CLI commands.
 ## Queuing a Job
 
 Call a queue's `enqueue` method, passing a job function and any arguments. A
-queue has other methods for scheduling, and some arguments can be give to
-customize the job's information. See the [RQ docs] for more information.
+queue has other methods, and some arguments can be given to customize the job's
+information. See the [RQ docs] for more information.
 
 [RQ docs]: https://python-rq.org/docs/
 
@@ -35,11 +35,12 @@ context, and the RQ worker will start an asyncio event loop if needed.
 Jobs can be scheduled to run in the future or periodically. See {doc}`schedule`
 for more information.
 
+(job-decorator)=
 ## The `job` Decorator
 
-The {meth}`.RQ.job` decorator wraps a function to give it an
-{meth}`enqueue <.JobWorker.enqueue>` method that automatically enqueues the
-function using the extension instance and given queue name.
+The {meth}`.RQ.job` decorator wraps a function to give it enqueue methods that
+use the extension instance and given queue name. See {class}`.JobWrapper` for
+the available methods.
 
 ```python
 @rq.job(queue="email")
@@ -52,11 +53,11 @@ send_password_reset.enqueue(user_id=user.id)
 rq.queues["email"].enqueue(send_password_reset, user_id=user.id)
 ```
 
-This added `enqueue` method retains the static type signature of the wrapped
-function, meaning your type checker can check the call unlike the generic call
-to `queue.enqueue`.
+The added methods retain the static type signature of the wrapped function,
+meaning your type checker can check the call, unlike the generic call to
+`queue.enqueue`.
 
-The wrapped function can still be called as a plain function as well.
+The wrapper can be called to execute the wrapped function directly.
 
 ```python
 await send_password_reset(user_id=user.id)

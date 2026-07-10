@@ -42,30 +42,14 @@ rq.queue.enqueue(update_stats, data=...)
 rq.queues["email"].enqueue(send_passord_reset, user_id=user.id)
 ```
 
-## The `job` Decorator
+### The `job` Decorator
 
-The {meth}`.RQ.job` decorator wraps a function to give it an
-{meth}`enqueue <.JobWorker.enqueue>` method that automatically enqueues the
-function using the extension instance and given queue name.
+The {meth}`.RQ.job` decorator wraps a function to give it enqueue methods that
+use the extension instance and given queue name. See {ref}`job-decorator` for
+more information, and {class}`.JobWrapper` for the available methods.
 
-```python
-@rq.job(queue="email")
-def send_password_reset(user_id: int) -> None:
-    ...
-
-send_password_reset.enqueue(user_id=user.id)
-
-# same as
-rq.queues["email"].enqueue(send_password_reset, user_id=user.id)
-```
-
-The queue can be overridden, it only applies when using the added method. The
-following uses the `"priority"` queue even though the job was configured for the
-`"email"` queue.
-
-```python
-rq.queues["priority"].enqueue(send_password_reset, user_id=user.id)
-```
+The given queue only applies when using the added method. It can still be
+passed to another queue's `enqueue` method.
 
 ## Other Connections
 

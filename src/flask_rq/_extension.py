@@ -224,9 +224,9 @@ class RQ:
         *,
         queue: str = "default",
     ) -> JobWrapper[P, R] | t.Callable[[t.Callable[P, R]], JobWrapper[P, R]]:
-        """Wrap the decorated function to add an `enqueue` method to it.
-        `job.enqueue()` is a shortcut for `rq.queue.enqueue(job)`. Can be
-        used as a decorator with or without arguments, or as a function.
+        """Wrap the decorated function to add enqueue methods to it. See
+        :class:`.JobWrapper` for the available methods. Can be used as a
+        decorator with or without arguments.
 
         .. code-block:: python
 
@@ -237,8 +237,6 @@ class RQ:
             @rq.job(queue="math")
             def sub(a, b):
                 return a - b
-
-            mul = rq.job(lambda a, b: a * b, queue="math")
 
         :param f: The job function. If not given, return a new decorator that
             uses the other given arguments.
