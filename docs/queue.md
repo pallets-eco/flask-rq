@@ -3,7 +3,7 @@
 For many applications, using the single `"default"` queue will be all they ever
 need. That said, RQ allows enqueuing jobs on different named queues. Workers can
 be started watching specific queues, so for example you can start one worker
-watching to the `"default"` queue, and three workers watching the `"priority"`
+watching the `"default"` queue, and three workers watching the `"priority"`
 queue.
 
 ## Configuring Queues
