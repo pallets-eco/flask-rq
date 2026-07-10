@@ -3,7 +3,7 @@
 RQ queues can be set to execute jobs immediately in the local process when
 enqueued, rather than requiring a separate worker process. When `app.testing`
 is `True`, Flask-RQ will enable this mode automatically. It can also be forced
-on or off using the {data}`RQ_ASYNC` config. A Redis server must still be
+on or off using the {data}`.RQ_ASYNC` config. A Redis server must still be
 running in order for RQ to do its bookkeeping.
 
 ## Managing a Test Server
@@ -88,7 +88,7 @@ steps:
 Instead of requiring Redis to be installed and running a real server, you can
 use the connection class provided by the [FakeRedis] library. This provides the
 same API as the Python Redis library, but stores all the data in the local
-Python memory. During testing, change {data}`RQ_CONNECTION_CLASS`.
+Python memory. During testing, change {data}`.RQ_CONNECTION_CLASS`.
 
 ```python
 app.config["RQ_CONNECTION_CLASS"] = "fakeredis.FakeRedis"
