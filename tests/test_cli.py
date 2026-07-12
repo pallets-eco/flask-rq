@@ -8,13 +8,19 @@ import click
 import pytest
 from flask import Flask
 from flask.globals import app_ctx
+from flask.testing import FlaskCliRunner
 from rq import cli as orig_cli
 
 from flask_rq import RQ
 from flask_rq._cli import from_rq_cmd
 
 
-def test_ctx_obj(app: Flask, rq: RQ) -> None:
+@pytest.fixture()
+def runner(app: Flask) -> FlaskCliRunner:
+    return app.test_cli_runner()
+
+
+def test_ctx_obj(app: Flask, rq: RQ, runner: FlaskCliRunner) -> None:
     recorded_app: t.Any | None = None
     recorded_obj: t.Any | None = None
     group = t.cast(click.Group, app.cli.commands["rq"])
@@ -27,7 +33,6 @@ def test_ctx_obj(app: Flask, rq: RQ) -> None:
         recorded_app = app_ctx.app
         recorded_obj = obj
 
-    runner = app.test_cli_runner()
     runner.invoke(args=["rq", "record"])
     assert recorded_app is app
     assert recorded_obj is rq
@@ -51,9 +56,8 @@ def test_from_rq_cmd_override_doc() -> None:
 
 
 @pytest.mark.usefixtures("rq")
-@patch("flask_rq._extension.Worker", spec=True)
-def test_worker(worker_cls: Mock, app: Flask) -> None:
-    runner = app.test_cli_runner()
+@patch("flask_rq._extension.FlaskSubprocessWorker", spec=True)
+def test_worker(worker_cls: Mock, runner: FlaskCliRunner) -> None:
     runner.invoke(args=["rq", "worker"])
     worker_cls.assert_called()
     assert "default_result_ttl" in worker_cls.call_args.kwargs
@@ -64,8 +68,21 @@ def test_worker(worker_cls: Mock, app: Flask) -> None:
 
 
 @pytest.mark.usefixtures("rq")
+@patch("flask_rq._cli.run_work_horse", spec=True)
+def test_work_horse(run: Mock, rq: RQ, runner: FlaskCliRunner) -> None:
+    runner.invoke(args=["rq", "work-horse", "a", "b", "c", "d"])
+    run.assert_called()
+    assert run.call_args.kwargs == {
+        "rq_ext": rq,
+        "queue_name": "a",
+        "worker_key": "b",
+        "job_id": "c",
+        "execution_id": "d",
+    }
+
+
+@pytest.mark.usefixtures("rq")
 @patch("rq.cron.CronScheduler.start", spec=True)
-def test_cron(start_func: Mock, app: Flask) -> None:
-    runner = app.test_cli_runner()
+def test_cron(start_func: Mock, runner: FlaskCliRunner) -> None:
     runner.invoke(args=["rq", "cron"])
     start_func.assert_called()

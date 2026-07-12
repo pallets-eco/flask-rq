@@ -9,6 +9,11 @@ run in an application context. This means that accessing `current_app`,
 databases, and other extensions will be available just like in view functions
 and CLI commands.
 
+Unlike RQ's worker, Flask-RQ's does not rely on `fork` or `spawn`, so it works
+on Windows and macOS in addition to Linux. Stopping the worker seems to be flaky
+on Windows; you can try adjusting `--worker-ttl` lower, or run in WSL or a
+container.
+
 See the [RQ docs] for more information on workers.
 
 [RQ docs]: https://python-rq.org/
