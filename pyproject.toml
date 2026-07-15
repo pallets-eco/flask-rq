@@ -1,6 +1,6 @@
 [project]
 name = "Flask-RQ"
-version = "1.0.0.dev"
+version = "1.0.0"
 description = "RQ (Redis Queue) integration for Flask and Quart applications."
 readme = "README.md"
 license = "MIT"
