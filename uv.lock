@@ -469,9 +469,11 @@ tests = [
 typing = [
     { name = "ephemeral-port-reserve" },
     { name = "mypy" },
-    { name = "pyright" },
     { name = "pytest" },
     { name = "quart" },
+]
+typing-export = [
+    { name = "pyright" },
 ]
 
 [package.metadata]
@@ -511,10 +513,10 @@ tests = [
 typing = [
     { name = "ephemeral-port-reserve" },
     { name = "mypy" },
-    { name = "pyright" },
     { name = "pytest" },
     { name = "quart" },
 ]
+typing-export = [{ name = "pyright" }]
 
 [[package]]
 name = "furo"

@@ -64,9 +64,11 @@ tests = [
 typing = [
     "ephemeral-port-reserve",
     "mypy",
-    "pyright",
     "pytest",
     "quart",
+]
+typing_export = [
+    "pyright",
 ]
 
 [tool.uv]
@@ -159,7 +161,7 @@ commands = [["pre-commit", "run", "--all-files"]]
 
 [tool.tox.env.typing]
 description = "run static type checkers"
-dependency_groups = ["typing"]
+dependency_groups = ["typing", "typing-export"]
 commands = [
     ["mypy"],
     ["pyright", "--verifytypes", "flask_rq", "--ignoreexternal"],
