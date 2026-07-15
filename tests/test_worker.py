@@ -1,61 +1,16 @@
 from __future__ import annotations
 
-import typing as t
+import os
+import sys
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
-from flask import current_app as flask_current_app
-from flask import Flask
-from quart import current_app as quart_current_app
-from quart import Quart
+from rq.executions import Execution
 
 from flask_rq import RQ
-
-
-@pytest.fixture
-def config(config: dict[str, t.Any]) -> dict[str, t.Any]:
-    config["FIND"] = "found"
-    config["RQ_ASYNC"] = True
-    return config
-
-
-def flask_sync_job() -> str:  # pragma: no cover
-    return flask_current_app.config["FIND"]  # type: ignore[no-any-return]
-
-
-async def flask_async_job() -> str:  # pragma: no cover
-    return flask_current_app.config["FIND"]  # type: ignore[no-any-return]
-
-
-@pytest.mark.parametrize("func", [flask_sync_job, flask_async_job])
-def test_flask(app: Flask, rq: RQ, func: t.Callable[[], str]) -> None:
-    with app.app_context():
-        job = rq.queue.enqueue(func)
-        worker = rq.make_worker()
-
-    worker.work(burst=True)
-    r = job.latest_result()
-    assert r is not None
-    assert r.return_value == "found"
-
-
-async def quart_async_job() -> str:  # pragma: no cover
-    return quart_current_app.config["FIND"]  # type: ignore[no-any-return]
-
-
-def quart_sync_job() -> str:  # pragma: no cover
-    return quart_current_app.config["FIND"]  # type: ignore[no-any-return]
-
-
-@pytest.mark.parametrize("func", [quart_async_job, quart_sync_job])
-async def test_quart(quart_app: Quart, rq: RQ, func: t.Callable[[], str]) -> None:
-    async with quart_app.app_context():
-        job = rq.queue.enqueue(func)
-        worker = rq.make_worker()
-
-    worker.work(burst=True)
-    r = job.latest_result()
-    assert r is not None
-    assert r.return_value == "found"
+from flask_rq._worker import FlaskSubprocessWorker
+from flask_rq._worker import run_work_horse
 
 
 @pytest.mark.usefixtures("app_ctx")
@@ -84,3 +39,81 @@ def test_worker_no_default(rq: RQ) -> None:
     worker = rq.make_worker(["low", "high"])
     assert len(worker.queues) == 2
     assert worker.connection is rq.queues["low"].connection
+
+
+@pytest.mark.parametrize(
+    ("argv", "expect"),
+    [
+        (["/tmp/flask", "rq", "worker"], ["/tmp/flask"]),
+        (["-m", "flask", "rq", "worker"], ["-m", "flask"]),
+        (["script.py"], ["-m", "flask"]),
+    ],
+)
+@pytest.mark.usefixtures("app_ctx")
+def test_fork(rq: RQ, argv: list[str], expect: list[str]) -> None:
+    worker = rq.make_worker()
+    assert isinstance(worker, FlaskSubprocessWorker)
+    job = MagicMock(spec=rq.queue.job_class)
+    job.id = "job-test"
+    execution = MagicMock(spec=Execution)
+    execution.id = "execution-test"
+    worker.execution = execution
+
+    with (
+        patch.object(sys, "orig_argv", ["python", *argv]),
+        patch.dict(os.environ, {"FLASK_APP": "test"}),
+        patch("subprocess.Popen", spec=True) as mock_popen,
+        patch.object(worker, "procline"),
+    ):
+        mock_popen.return_value.pid = 50
+        worker.fork_work_horse(job, rq.queue)
+
+    assert mock_popen.call_args is not None
+    assert mock_popen.call_args.args[0] == [
+        sys.executable,
+        *expect,
+        "rq",
+        "work-horse",
+        "default",
+        worker.key,
+        "job-test",
+        "execution-test",
+    ]
+    assert worker._horse_pid == 50
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_fork_no_app(rq: RQ) -> None:
+    worker = rq.make_worker()
+    assert isinstance(worker, FlaskSubprocessWorker)
+
+    with (
+        pytest.raises(RuntimeError, match="FLASK_APP"),
+        patch.object(sys, "orig_argv", ["python", "script.py"]),
+    ):
+        worker.fork_work_horse(None, None)  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures("app_ctx")
+def test_run_work_horse(rq: RQ) -> None:
+    queue = rq.queue
+    worker = MagicMock(spec=FlaskSubprocessWorker)
+    job = MagicMock(spec=queue.job_class)
+    execution = MagicMock(spec=Execution)
+
+    with (
+        patch.object(FlaskSubprocessWorker, "find_by_key", return_value=worker),
+        patch.object(queue, "fetch_job", return_value=job),
+        patch.object(Execution, "fetch", return_value=execution),
+    ):
+        run_work_horse(
+            rq_ext=rq,
+            queue_name="default",
+            worker_key="worker-test",
+            job_id="job-test",
+            execution_id="execution-test",
+        )
+
+    assert worker.execution is execution
+    assert worker._is_horse
+    worker.main_work_horse.assert_called_once_with(job, queue)

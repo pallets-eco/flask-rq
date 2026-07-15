@@ -9,6 +9,8 @@ from flask import Flask
 from flask.cli import ScriptInfo as FlaskScriptInfo
 from rq import cli as orig_cli
 
+from ._worker import run_work_horse
+
 if t.TYPE_CHECKING:
     from quart import Quart
     from quart.cli import ScriptInfo as QuartScriptInfo
@@ -29,6 +31,7 @@ def make_cli(app: Flask | Quart) -> None:
     """
     group = app.cli.group("rq")(rq_group)
     group.command("worker", with_appcontext=True)(worker_cmd)
+    group.command("work-horse", with_appcontext=True, hidden=True)(work_horse_cmd)
     group.command("cron", with_appcontext=True)(cron_cmd)
     app.cli.add_command(group)
 
@@ -107,6 +110,30 @@ def worker_cmd(
         max_jobs=max_jobs,
         max_idle_time=max_idle_time,
         with_scheduler=with_scheduler,
+    )
+
+
+@click.argument("queue")
+@click.argument("worker")
+@click.argument("job")
+@click.argument("execution")
+@click.pass_obj
+def work_horse_cmd(
+    obj: RQ,
+    queue: str,
+    worker: str,
+    job: str,
+    execution: str,
+) -> None:
+    """Used by the worker to start a subprocess to run a job. Do not
+    call this directly.
+    """
+    run_work_horse(
+        rq_ext=obj,
+        queue_name=queue,
+        worker_key=worker,
+        job_id=job,
+        execution_id=execution,
     )
 
 

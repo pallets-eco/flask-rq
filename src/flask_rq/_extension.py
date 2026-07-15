@@ -9,12 +9,13 @@ from flask import Flask
 from flask.globals import app_ctx as flask_app_ctx
 from rq import cron
 from rq import Queue
-from rq import Worker
+from rq.worker import BaseWorker
 
 from ._cli import make_cli
 from ._job_wrapper import JobWrapper
 from ._make import make_default_connection
 from ._make import make_queues
+from ._worker import FlaskSubprocessWorker
 
 if t.TYPE_CHECKING:
     from quart import Quart
@@ -129,7 +130,7 @@ class RQ:
 
     def make_worker(
         self, queues: list[str] | tuple[str, ...] | None = None, **kwargs: t.Any
-    ) -> Worker:
+    ) -> BaseWorker:
         """Create a worker for the current application that will watch the
         configured queues and execute jobs in the application context.
 
@@ -153,7 +154,11 @@ class RQ:
             known_queues = self.queues
             worker_queues = tuple(known_queues[k] for k in queues)
 
-        return Worker(worker_queues, job_class=worker_queues[0].job_class, **kwargs)
+        return FlaskSubprocessWorker(
+            worker_queues,
+            job_class=worker_queues[0].job_class,
+            **kwargs,
+        )
 
     def cron_register(
         self,

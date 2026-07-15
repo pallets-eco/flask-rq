@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections.abc as cabc
+import shutil
 import subprocess
 import time
 import typing as t
@@ -24,8 +25,14 @@ def redis_port() -> int:
 def _start_redis(
     tmp_path_factory: pytest.TempPathFactory, redis_port: int
 ) -> cabc.Iterator[None]:
+    for name in "valkey-server", "redis-server", "memurai":  # pragma: no cover
+        if (exe := shutil.which(name)) is not None:
+            break
+    else:  # pragma: no cover
+        raise RuntimeError("Valkey, Redis, or Memurai must be installed.")
+
     proc = subprocess.Popen(
-        ["redis-server", "--port", str(redis_port)],
+        [exe, "--port", str(redis_port)],
         cwd=tmp_path_factory.mktemp("redis-server"),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
