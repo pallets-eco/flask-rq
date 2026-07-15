@@ -1,6 +1,6 @@
 ## Version 1.0.0
 
-Unreleased
+Released 2026-07-15
 
 - Drop support for Python 3.9 and 3.10.
 - Require RQ >= 2.4.
