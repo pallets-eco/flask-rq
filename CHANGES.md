@@ -21,6 +21,8 @@ Unreleased
   wrapper.
 - The worker runs jobs using `subprocess` and the `flask` CLI. This works on
   Windows and macOS and avoids `fork` and `spawn`. {issue}`58`
+- Async jobs can execute even if a loop is already running. If a loop is not
+  running, the created loop is cleaned up at the end.
 
 ## Version 0.3.3
 

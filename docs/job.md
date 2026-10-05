@@ -79,9 +79,7 @@ rq.cron.register(send_reminder.func, cron="0 0 * * 1-5")
 ## Async
 
 Flask-RQ supports both Flask and Quart. Sync `def` and `async def` functions can
-be queued in the same way. Behind the scenes, Flask-RQ will add the appropriate
-wrapper to activate the app context, and the RQ worker will start an asyncio
-event loop if needed.
+be queued in the same way.
 
 RQ only uses the `redis.Redis` sync connection to communicate with Redis. You
 might be concerned that calling `enqueue` from an `async def` view function is
