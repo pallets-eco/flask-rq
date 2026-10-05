@@ -40,9 +40,10 @@ from flask_rq import RQ
 app = Flask(__name__)
 rq = RQ(app)
 
+
 @rq.job
-def send_password_reset_job(user_id:  int) -> None:
-    ...
+def send_password_reset_job(user_id: int) -> None: ...
+
 
 @app.route("/auth/send-password-reset")
 def send_password_reset():

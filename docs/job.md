@@ -18,11 +18,11 @@ information. See the [RQ docs] for more information.
 [RQ docs]: https://python-rq.org/docs/
 
 ```python
-def update_stats(data):
-    ...
+def update_stats(data): ...
 
-async def send_password_reset(user_id):
-    ...
+
+async def send_password_reset(user_id): ...
+
 
 rq.queue.enqueue(update_stats, data=...)
 rq.queues["email"].enqueue(send_passord_reset, user_id=user.id)
@@ -42,8 +42,8 @@ the available methods.
 
 ```python
 @rq.job(queue="email")
-async def send_password_reset(user_id: int) -> None:
-    ...
+async def send_password_reset(user_id: int) -> None: ...
+
 
 send_password_reset.enqueue(user_id=user.id)
 

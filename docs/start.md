@@ -50,8 +50,8 @@ any positional and keyword arguments. {attr}`.RQ.queue` is the default queue, or
 a queue can be accessed by name through the {attr}`.RQ.queues` dict.
 
 ```python
-def send_password_reset(user_id: int) -> None:
-    ...
+def send_password_reset(user_id: int) -> None: ...
+
 
 # the default queue
 rq.queue.enqueue(send_password_reset, user.id)
@@ -66,8 +66,8 @@ queue.
 
 ```python
 @rq.job(queue="email")
-def send_password_reset(user_id: int) -> None:
-    ...
+def send_password_reset(user_id: int) -> None: ...
+
 
 send_password_reset.enqueue(user.id)
 ```

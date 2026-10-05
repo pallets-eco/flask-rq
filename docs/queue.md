@@ -77,7 +77,7 @@ RQ_CONNECTION = "redis://redis.my-app.example"
 RQ_QUEUES = ["priority", "email", "email-priority", "default"]
 RQ_QUEUE_CONNECTIONS = {
     "email": "redis://email-redis.my-app.example",
-    "email-priority": "email"
+    "email-priority": "email",
 }
 ```
 

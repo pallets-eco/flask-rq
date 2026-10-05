@@ -29,6 +29,7 @@ import pytest
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
+
 @pytest.fixture(scope="session")
 def redis_port() -> int:
     return ephemeral_port_reserve.reserve()  # type: ignore[no-any-return]
@@ -62,7 +63,6 @@ def _start_redis(
 def _reset_redis(redis_port: int) -> cabc.Iterator[None]:
     yield
     Redis(port=redis_port, single_connection_client=True).flushall()
-
 ```
 
 ## CI and GitHub Actions

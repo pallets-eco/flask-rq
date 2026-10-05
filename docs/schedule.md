@@ -81,6 +81,7 @@ information.
 ```python
 # global registration, interval seconds
 from rq import cron
+
 cron.register(update_data_source, "default", interval=28_800)
 
 # app-specific registration, cron string
