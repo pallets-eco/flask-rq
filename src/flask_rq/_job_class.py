@@ -1,76 +1,62 @@
 from __future__ import annotations
 
+import asyncio
+import contextvars
+import sys
+import threading
 import typing as t
-import weakref
-from functools import update_wrapper
+from collections import abc as cabc
+from typing import Any
 
-from flask import Flask
 from rq.job import Job
-
-if t.TYPE_CHECKING:
-    from quart import Quart
 
 
 class FlaskJob(Job):
-    """An RQ job class that knows about the current Flask app and executes its
-    function inside an active application context.
-    """
+    def _execute(self) -> Any:
+        """Run the job's function with its arguments.
 
-    _flask_app: weakref.ref[Flask]
-
-    @property
-    def func(self) -> t.Any:
-        """Wrap the job's function in a sync function that pushes a Flask
-        application context. Async functions are also supported, relying on
-        Flask's ``ensure_sync`` and asgiref.
+        Handles coroutines better by cleaning up the loop and working when in an
+        existing loop.
         """
-        func = t.cast(t.Callable[..., t.Any], super().func)
-        app = self._flask_app()
-        assert app is not None
+        assert self.func is not None
+        result = self.func(*self.args, **self.kwargs)
 
-        def new_func(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            with app.app_context():
-                return app.ensure_sync(func)(*args, **kwargs)
+        if not asyncio.iscoroutine(result):
+            return result
 
-        return update_wrapper(new_func, func)
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            # No loop (Flask), run and clean up directly.
+            return asyncio.run(result)
 
+        # There is an existing async loop (Quart CLI pushing its app context).
+        # Cannot schedule the coroutine on the existing loop. This sync function
+        # would have to block waiting on the result and would never let the
+        # coroutine start. Use a new thread with a new loop to set the result.
 
-class QuartJob(Job):
-    """An RQ job class that knows about the current Quart app and executes its
-    function inside an active application context.
-    """
+        if sys.version_info >= (3, 14):
+            t = threading.Thread(
+                target=self._loop_in_thread,
+                args=(result,),
+                context=contextvars.copy_context(),
+            )
+        else:
+            t = threading.Thread(
+                target=self._loop_in_thread,
+                args=(result, contextvars.copy_context()),
+            )
 
-    _quart_app: weakref.ref[Quart]
+        t.start()
+        t.join()
+        return self._result
 
-    @property
-    def func(self) -> t.Any:
-        """Wrap the job's function in an async function that pushes a Quart
-        application context. Sync functions are also supported, relying on
-        Quart's ``ensure_async`` and asgiref.
-        """
-        func = t.cast(t.Callable[..., t.Any], super().func)
-        app = self._quart_app()
-        assert app is not None
-
-        async def new_func(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            async with app.app_context():
-                return await app.ensure_async(func)(*args, **kwargs)
-
-        return update_wrapper(new_func, func)
-
-
-def make_job_class(app: Flask | Quart) -> type[Job]:
-    """Create the appropriate job class for the given app. The app is stored on
-    the new subclass so that it can push an app context and wrap sync/async
-    functions.
-
-    :param app: The app to create a bound job class for.
-    """
-    cls: type[Job]
-
-    if isinstance(app, Flask):
-        cls = type("BoundFlaskJob", (FlaskJob,), {"_flask_app": weakref.ref(app)})
-    else:
-        cls = type("BoundQuartJob", (QuartJob,), {"_quart_app": weakref.ref(app)})
-
-    return cls
+    def _loop_in_thread(
+        self,
+        coro: cabc.Coroutine[t.Any, None, None],
+        context: contextvars.Context | None = None,
+    ) -> None:
+        if context is None:
+            self._result = asyncio.run(coro)
+        else:
+            self._result = context.run(asyncio.run, coro)

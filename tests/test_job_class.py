@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import typing as t
 
 import pytest
@@ -22,18 +23,19 @@ def flask_sync_job() -> str:  # pragma: no cover
 
 
 async def flask_async_job() -> str:  # pragma: no cover
+    await asyncio.sleep(0)  # ensure loop is not blocked
     return flask_current_app.config["FIND"]  # type: ignore[no-any-return]
 
 
 @pytest.mark.parametrize("func", [flask_sync_job, flask_async_job])
 def test_flask(app: Flask, rq: RQ, func: t.Callable[[], str]) -> None:
     with app.app_context():
-        job = rq.queue.create_job(func)
-
-    assert job.perform() == "found"
+        job = rq.queue.enqueue(func)
+        assert job.return_value() == "found"
 
 
 async def quart_async_job() -> str:  # pragma: no cover
+    await asyncio.sleep(0)  # ensure loop is not blocked
     return quart_current_app.config["FIND"]  # type: ignore[no-any-return]
 
 
@@ -44,8 +46,5 @@ def quart_sync_job() -> str:  # pragma: no cover
 @pytest.mark.parametrize("func", [quart_async_job, quart_sync_job])
 async def test_quart(quart_app: Quart, rq: RQ, func: t.Callable[[], str]) -> None:
     async with quart_app.app_context():
-        job = rq.queue.create_job(func)
-
-    job_func = job.func
-    assert job_func is not None
-    assert await job_func() == "found"
+        job = rq.queue.enqueue(func)
+        assert job.return_value() == "found"

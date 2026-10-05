@@ -6,7 +6,7 @@ from pkgutil import resolve_name
 from flask import Flask
 from rq import Queue
 
-from flask_rq._job_class import make_job_class
+from flask_rq._job_class import FlaskJob
 
 if t.TYPE_CHECKING:
     from quart import Quart
@@ -45,7 +45,6 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
             connections[name] = conn_cls(**conn_conf)
 
     default_conn = connections["default"]
-    job_class = make_job_class(app)
     queues: dict[str, Queue] = {}
 
     # All defined connections have been created, now create each queue with the
@@ -64,7 +63,7 @@ def make_queues(app: Flask | Quart) -> dict[str, Queue]:
         else:
             conn = default_conn
 
-        queues[name] = Queue(name, conn, is_async=is_async, job_class=job_class)
+        queues[name] = Queue(name, conn, is_async=is_async, job_class=FlaskJob)
 
     return queues
 
