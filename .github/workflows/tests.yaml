@@ -33,6 +33,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python }}
+          allow-prereleases: true
       - uses: shogo82148/actions-setup-redis@ffaf3c39499b2917543d84f6acc818277580b531 # v1.58.1
         with:
           auto-start: false
